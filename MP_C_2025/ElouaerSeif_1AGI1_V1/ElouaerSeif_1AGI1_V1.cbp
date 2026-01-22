@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title=" NomPrenom_Classe_V1" />
+		<Option title=" ElouaerSeif_1AGI1_V1" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -31,9 +31,14 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="client.h" />
+		<Unit filename="commande.h" />
+		<Unit filename="headers.h" />
+		<Unit filename="machine.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="pokemon.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
