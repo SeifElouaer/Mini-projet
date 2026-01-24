@@ -19,15 +19,23 @@ void menuPokemon() {
         switch (choix) {
             case 1:
                 printf(">> Ajouter un Pokemon\n");
+                ajouterPokemon(pokemons , nbPokemons);
+                menuPrincipal;
                 break;
             case 2:
                 printf(">> Afficher les Pokemons\n");
+                afficherPokemons(pokemons , nbPokemons);
+                menuPrincipal;
                 break;
             case 3:
                 printf(">> Modifier un Pokemon\n");
+                modifierPokemon(pokemons , nbPokemons);
+                menuPrincipal;
                 break;
             case 4:
                 printf(">> Supprimer un Pokemon\n");
+                supprimerPokemon(pokemons , nbPokemons);
+                menuPrincipal;
                 break;
             case 5:
                 printf("Retour au menu principal...\n");
@@ -36,7 +44,7 @@ void menuPokemon() {
                 printf("Choix invalide !\n");
         }
 
-    } while (choix != 5);
+    } while (choix <0 || choix >6);
 }
 /* ===== SOUS MENU MACHINE ===== */
 void menuMachine() {
@@ -55,15 +63,23 @@ void menuMachine() {
         switch (choix) {
             case 1:
                 printf(">> Ajouter une Machine \n");
+                ajouterMachine(machines,nbMachines);
+                menuPrincipal;
                 break;
             case 2:
                 printf(">> Afficher une Machine \n");
+                afficherMachines(machines,nbMachines);
+                menuPrincipal;
                 break;
             case 3:
                 printf(">> Modifier une Machine \n");
+                modifierMachine(machines,nbMachines);
+                menuPrincipal;
                 break;
             case 4:
                 printf(">> Supprimer une Machine\n");
+                supprimerMachine(machines,nbMachines);
+                menuPrincipal;
                 break;
             case 5:
                 printf("Retour au menu principal...\n");
@@ -72,7 +88,7 @@ void menuMachine() {
                 printf("Choix invalide !\n");
         }
 
-    } while (choix != 5);
+    } while choix <0 || choix >6);
 }
 /* ===== SOUS-MENU Commande ===== */
 void menuCommande() {
@@ -91,15 +107,23 @@ void menuCommande() {
         switch (choix) {
             case 1:
                 printf(">> Ajouter un commande\n");
+                ajouterCommande(commandes,nbCommandes);
+                menuPrincipal;
                 break;
             case 2:
                 printf(">> Afficher les commandes\n");
+                afficherCommandes(commandes,nbCommandes);
+                menuPrincipal;
                 break;
             case 3:
                 printf(">> Modifier une commande\n");
+                modifierCommande(commandes,nbCommandes);
+                menuPrincipal;
                 break;
             case 4:
                 printf(">> Supprimer une commande \n");
+                supprimerCommande(commandes,nbCommandes);
+                menuPrincipal;
                 break;
             case 5:
                 printf("Retour au menu principal...\n");
@@ -108,7 +132,7 @@ void menuCommande() {
                 printf("Choix invalide !\n");
         }
 
-    } while (choix != 5);
+    } while choix <0 || choix >6);
 }
 void menuClient() {
     int choix;
@@ -126,15 +150,23 @@ void menuClient() {
         switch (choix) {
             case 1:
                 printf(">> Ajouter un client\n");
+                ajouterClient(clients,nbClients);
+                menuPrincipal;
                 break;
             case 2:
                 printf(">> Afficher les clients\n");
+                afficherClients(clients,nbClients);
+                menuPrincipal;
                 break;
             case 3:
                 printf(">> Modifier un client\n");
+                modifierClient(clients,nbClients);
+                menuPrincipal;
                 break;
             case 4:
                 printf(">> Supprimer un client\n");
+                supprimerClient(clients,nbClients);
+                menuPrincipal;
                 break;
             case 5:
                 printf("Retour au menu principal...\n");
@@ -143,6 +175,6 @@ void menuClient() {
                 printf("Choix invalide !\n");
         }
 
-    } while (choix != 5);
+    } while choix <0 || choix >6);
 }
 
