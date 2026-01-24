@@ -2,12 +2,15 @@
 
 int main()
 {
-    int taille_tab_etu=2;
-    int position, choix, rep;
-    char nom[20];
-    ETUDIANT TabEtud[taille_tab_etu];
-    int last_index=-1;
+    pokemon pokemons[];
+    machine machines[];
+    client clients[];
+    commande commandes[];
 
+    int nbPokemons = 0;
+    int nbMachines = 0;
+    int nbClients = 0;
+    int nbCommandes = 0;
 
     while(1)
     {
