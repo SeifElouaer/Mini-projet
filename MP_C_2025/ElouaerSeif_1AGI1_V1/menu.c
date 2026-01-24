@@ -1,0 +1,148 @@
+#include "headers.h"
+
+/****************Fonctions Développées**************************/
+
+/* ===== SOUS-MENU POKEMON ===== */
+void menuPokemon() {
+    int choix;
+
+    do {
+        printf("\n===== GERER POKEMON =====\n");
+        printf("1. Ajouter un Pokemon\n");
+        printf("2. Afficher les Pokemons\n");
+        printf("3. Modifier un Pokemon\n");
+        printf("4. Supprimer un Pokemon\n");
+        printf("5. Revenir au menu precedent\n");
+        printf("Votre choix : ");
+        scanf("%d", &choix);
+
+        switch (choix) {
+            case 1:
+                printf(">> Ajouter un Pokemon\n");
+                break;
+            case 2:
+                printf(">> Afficher les Pokemons\n");
+                break;
+            case 3:
+                printf(">> Modifier un Pokemon\n");
+                break;
+            case 4:
+                printf(">> Supprimer un Pokemon\n");
+                break;
+            case 5:
+                printf("Retour au menu principal...\n");
+                break;
+            default:
+                printf("Choix invalide !\n");
+        }
+
+    } while (choix != 5);
+}
+/* ===== SOUS MENU MACHINE ===== */
+void menuMachine() {
+    int choix;
+
+    do {
+        printf("\n===== GERER MACHINE =====\n");
+        printf("1. Ajouter un machine\n");
+        printf("2. Afficher les machines\n");
+        printf("3. Modifier un machine\n");
+        printf("4. Supprimer un machine\n");
+        printf("5. Revenir au menu precedent\n");
+        printf("Votre choix : ");
+        scanf("%d", &choix);
+
+        switch (choix) {
+            case 1:
+                printf(">> Ajouter une Machine \n");
+                break;
+            case 2:
+                printf(">> Afficher une Machine \n");
+                break;
+            case 3:
+                printf(">> Modifier une Machine \n");
+                break;
+            case 4:
+                printf(">> Supprimer une Machine\n");
+                break;
+            case 5:
+                printf("Retour au menu principal...\n");
+                break;
+            default:
+                printf("Choix invalide !\n");
+        }
+
+    } while (choix != 5);
+}
+/* ===== SOUS-MENU Commande ===== */
+void menuCommande() {
+    int choix;
+
+    do {
+        printf("\n===== GERER commande =====\n");
+        printf("1. Ajouter une commande\n");
+        printf("2. Afficher les commandes\n");
+        printf("3. Modifier une commande\n");
+        printf("4. Supprimer une commande \n");
+        printf("5. Revenir au menu precedent\n");
+        printf("Votre choix : ");
+        scanf("%d", &choix);
+
+        switch (choix) {
+            case 1:
+                printf(">> Ajouter un commande\n");
+                break;
+            case 2:
+                printf(">> Afficher les commandes\n");
+                break;
+            case 3:
+                printf(">> Modifier une commande\n");
+                break;
+            case 4:
+                printf(">> Supprimer une commande \n");
+                break;
+            case 5:
+                printf("Retour au menu principal...\n");
+                break;
+            default:
+                printf("Choix invalide !\n");
+        }
+
+    } while (choix != 5);
+}
+void menuClient() {
+    int choix;
+
+    do {
+        printf("\n===== GERER Clients =====\n");
+        printf("1. Ajouter un Client\n");
+        printf("2. Afficher les Clients\n");
+        printf("3. Modifier un Client\n");
+        printf("4. Supprimer un Client\n");
+        printf("5. Revenir au menu precedent\n");
+        printf("Votre choix : ");
+        scanf("%d", &choix);
+
+        switch (choix) {
+            case 1:
+                printf(">> Ajouter un client\n");
+                break;
+            case 2:
+                printf(">> Afficher les clients\n");
+                break;
+            case 3:
+                printf(">> Modifier un client\n");
+                break;
+            case 4:
+                printf(">> Supprimer un client\n");
+                break;
+            case 5:
+                printf("Retour au menu principal...\n");
+                break;
+            default:
+                printf("Choix invalide !\n");
+        }
+
+    } while (choix != 5);
+}
+

@@ -11,15 +11,9 @@ typedef struct client{
 }client;
 
 /********Declaration fonctions CLIENT************/
-ETUDIANT saisirEtud();
-void AfficherEtudiant(ETUDIANT e);
-void modifier_etudiant(ETUDIANT *etd);
-
-int AjouterEtudiant(ETUDIANT TabEtud[],int last_index, int taille);
-void afficherTabEtudiant(ETUDIANT TabEtud[],int n);
-
-int rechercherId(ETUDIANT TabEtud[],int n);
-int rechercherEtudiantNom(ETUDIANT TabEtud[], int n, char nom[]);
-void supprimer_etudiant(ETUDIANT TabEtud[],int *N, int pos);
+void ajouterClient(client c[], int *n);
+void afficherClients(client c[], int n);
+void modifierClient(client c[], int n);
+void supprimerClient(client c[], int *n);
 
 #endif // CLIENT_H_INCLUDED

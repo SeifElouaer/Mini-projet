@@ -4,7 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Salle.h"
-#include "Etudiant.h"
+#include <time.h>
+#include "client.h"
+#include "commande.h"
+#include "machine.h"
+#include "pokemon.h"
 
 #endif // HEADERS_H_INCLUDED

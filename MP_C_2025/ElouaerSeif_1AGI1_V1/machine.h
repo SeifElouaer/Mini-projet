@@ -6,25 +6,20 @@
 typedef struct machine{
     int id;
     char nom[20];
-    pokemon p;
-    int temps;
-    int nb;
+    int idPokemon;
+    int tempsProd;
+    int nbMax;
     int compteur;
-    float c_maint;
+    float coutMaint;
     char etat[];
-    commande c;
+    int idCommande;
 }machine;
 
 /********Declaration fonctions MACHINE************/
-ETUDIANT saisirEtud();
-void AfficherEtudiant(ETUDIANT e);
-void modifier_etudiant(ETUDIANT *etd);
 
-int AjouterEtudiant(ETUDIANT TabEtud[],int last_index, int taille);
-void afficherTabEtudiant(ETUDIANT TabEtud[],int n);
-
-int rechercherId(ETUDIANT TabEtud[],int n);
-int rechercherEtudiantNom(ETUDIANT TabEtud[], int n, char nom[]);
-void supprimer_etudiant(ETUDIANT TabEtud[],int *N, int pos);
+void ajouterMachine(machine m[], int *n);
+void afficherMachines(machine m[], int n);
+void modifierMachine(machine m[], int n);
+void supprimerMachine(machine m[], int *n);
 
 #endif // MACHINE_H_INCLUDED

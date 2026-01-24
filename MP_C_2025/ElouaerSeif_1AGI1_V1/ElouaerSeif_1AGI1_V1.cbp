@@ -31,11 +31,23 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="client.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="client.h" />
+		<Unit filename="commande.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="commande.h" />
 		<Unit filename="headers.h" />
+		<Unit filename="machine.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="machine.h" />
 		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pokemon.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="pokemon.h" />

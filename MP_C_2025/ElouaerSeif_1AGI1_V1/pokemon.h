@@ -5,21 +5,16 @@
 
 typedef struct pokemon{
     int id;
-    char nom[20];
+    char nom[30];
     float prix;
-    char type[];
+    char type[20];
 }pokemon;
 
 /********Declaration fonctions POKEMON************/
-ETUDIANT saisirEtud();
-void AfficherEtudiant(ETUDIANT e);
-void modifier_etudiant(ETUDIANT *etd);
 
-int AjouterEtudiant(ETUDIANT TabEtud[],int last_index, int taille);
-void afficherTabEtudiant(ETUDIANT TabEtud[],int n);
-
-int rechercherId(ETUDIANT TabEtud[],int n);
-int rechercherEtudiantNom(ETUDIANT TabEtud[], int n, char nom[]);
-void supprimer_etudiant(ETUDIANT TabEtud[],int *N, int pos);
+void afficherPokemons(pokemon tab[], int n);
+void ajouterPokemon(pokemon tab[], int *n);
+void modifierPokemon(pokemon tab[], int n);
+void supprimerPokemon(pokemon tab[], int *n);
 
 #endif // POKEMON_H_INCLUDED
