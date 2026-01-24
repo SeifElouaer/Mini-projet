@@ -4,17 +4,17 @@
 
 static int idCommandeAuto = 1;
 void ajouterCommande(commande c[], int *n){
-    commande c;
-    c.id = idCommandeAuto++;
+    commande cm;
+    cm.id = idCommandeAuto++;
     printf("Matricule client : ");
-    scanf("%d", &c.matriculeClient);
+    scanf("%d", &cm.matriculeClient);
     printf("ID Pokemon : ");
-    scanf("%d", &c.idPokemon);
+    scanf("%d", &cm.idPokemon);
     printf("Quantité : ");
-    scanf("%d", &c.quantité);
-    c.date = time(NULL);
-    c.etat = 0;
-    tab[*n] = c;
+    scanf("%d", &cm.quantite);
+    cm.date = time(NULL);
+    cm.etat='en attente';
+    c[*n] = cm;
     (*n)++;
 }
 
@@ -26,7 +26,7 @@ void afficherCommandes(commande c[], int n){
     for (int i = 0; i < n; i++) {
         printf("ID:%d | Client:%d | Pokemon:%d | Qte:%d | Etat:%d\n",
                c[i].id, c[i].matriculeClient,
-               c[i].idPokemon, c[i].quantité, c[i].etat);
+               c[i].idPokemon, c[i].quantite, c[i].etat);
     }
 }
 
@@ -36,9 +36,9 @@ void modifierCommande(commande c[], int n){
     scanf("%d", &id);
 
     for (int i = 0; i < n; i++) {
-        if (tab[i].id == id) {
+        if (c[i].id == id) {
             printf("Nouvelle quantité : ");
-            scanf("%d", &c[i].quantité);
+            scanf("%d", &c[i].quantite);
 
             printf("Nouvel etat: ");
             scanf("%s", c[i].etat);
@@ -48,7 +48,7 @@ void modifierCommande(commande c[], int n){
     printf("Commande introuvable.\n");
 }
 void supprimerCommande(commande c[], int *n){
-    int id, int i;
+    int id,i;
     printf("ID commande : ");
     scanf("%d", &id);
 

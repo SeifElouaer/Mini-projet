@@ -11,7 +11,7 @@ typedef struct machine{
     int nbMax;
     int compteur;
     float coutMaint;
-    char etat[];
+    char etat[20];
     int idCommande;
 }machine;
 

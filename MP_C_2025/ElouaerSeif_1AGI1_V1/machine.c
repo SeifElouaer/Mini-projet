@@ -4,21 +4,21 @@
 
 static int idAuto = 1;
 void ajouterMachine(machine m[], int *n){
-    machine m;
-    m.id = idAuto++;
+    machine mc;
+    mc.id = idAuto++;
     printf("Nom machine : ");
-    scanf("%s", m.nom);
+    scanf("%s", mc.nom);
     printf("ID Pokemon produit : ");
-    scanf("%d", &m.idPokemon);
+    scanf("%d", &mc.idPokemon);
     printf("Temps production (en min) : ");
-    scanf("%d", &m.tempsProd);
+    scanf("%d", &mc.tempsProd);
     printf("Max production avant maintenance : ");
-    scanf("%d", &m.nbMax);
+    scanf("%d", &mc.nbMax);
     printf("Cout maintenance : ");
-    scanf("%f", &m.coutMaint);
-    m.compteur = 0;
-    m.etat = 0;
-    tab[*n] = m;
+    scanf("%f", &mc.coutMaint);
+    mc.compteur = 0;
+    mc.etat ='libre';
+    m[*n] = mc;
     (*n)++;
     printf("Machine ajoutée\n");
 }
@@ -28,7 +28,7 @@ void afficherMachines(machine m[], int n){
     for (int i = 0; i < n; i++) {
         printf("ID:%d | nom:%s | Pokemon:%d | temps:%d | Max prod:%f | Cout maintenance:%f | Etat:%d\n",
                m[i].id, m[i].nom, m[i].idPokemon,
-                m[i]tempsProd,m[i].nbMax,
+                m[i].tempsProd,m[i].nbMax,
                 m[i].coutMaint, m[i].etat);
     }
 }

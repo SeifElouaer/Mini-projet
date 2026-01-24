@@ -1,50 +1,6 @@
 #include "headers.h"
 
-/****************Fonctions DÃ©veloppÃ©es**************************/
-
-
- /* ===== MENU PRINCIPAL ===== */
-void menuPrincipal() {
-    int choix;
-
-    do {
-        printf("\n===== USINE POKEMON =====\n");
-        printf("1. Gerer les Pokemon\n");
-        printf("2. Gerer les machines\n");
-        printf("3. Gerer les clients\n");
-        printf("4. Gerer les commandes\n");
-        printf("5. Afficher l'etat de l'usine\n");
-        printf("6. Quitter\n");
-        printf("Votre choix : ");
-        scanf("%d", &choix);
-
-        switch (choix) {
-            case 1:
-                menuPokemon();
-                break;
-            case 2:
-                menuMachine();
-                break;
-            case 3:
-                menuClient();
-                break;
-            case 4:
-                menucommande();
-                break;
-            case 5:
-                menuEtat_de_usine();
-                break;
-            case 6:
-                printf("Au revoir !\n");
-                exit(0);
-                break;
-            default:
-                printf("Choix invalide !\n");
-        }
-
-    } while (choix<0 || choix>6);
-}
-
+/****************Fonctions Développées**************************/
 
 /* ===== SOUS-MENU POKEMON ===== */
 void menuPokemon() {
@@ -132,7 +88,7 @@ void menuMachine() {
                 printf("Choix invalide !\n");
         }
 
-    } while choix <0 || choix >6);
+    } while (choix <0 || choix >6);
 }
 /* ===== SOUS-MENU Commande ===== */
 void menuCommande() {
@@ -176,7 +132,7 @@ void menuCommande() {
                 printf("Choix invalide !\n");
         }
 
-    } while choix <0 || choix >6);
+    } while (choix <0 || choix >6);
 }
 void menuClient() {
     int choix;
@@ -219,7 +175,6 @@ void menuClient() {
                 printf("Choix invalide !\n");
         }
 
-    } while choix <0 || choix >6);
-}
-
+    } while (choix <0 || choix >6);
+};
 

@@ -4,11 +4,11 @@
 
 static int matriculeAuto = 1;
 void ajouterClient(client c[], int *n){
-    client c;
-    c.matricule = matriculeAuto++;
+    client cl;
+    cl.matricule = matriculeAuto++;
     printf("Nom client : ");
-    scanf("%s", c.nom);
-    c[*n] = c;
+    scanf("%s", cl.nom);
+    c[*n] = cl;
     (*n)++;
     printf("Client ajouté\n");
 }

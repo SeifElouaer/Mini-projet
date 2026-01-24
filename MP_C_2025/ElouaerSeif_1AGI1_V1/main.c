@@ -2,10 +2,10 @@
 
 int main()
 {
-    pokemon pokemons[];
-    machine machines[];
-    client clients[];
-    commande commandes[];
+    pokemon pokemons[20];
+    machine machines[20];
+    client clients[20];
+    commande commandes[20];
 
     int nbPokemons = 0;
     int nbMachines = 0;

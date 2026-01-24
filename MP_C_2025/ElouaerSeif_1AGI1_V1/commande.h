@@ -8,7 +8,7 @@ typedef struct commande{
     int id;
     int matriculeClient;
     int idPokemon;
-    int quantité;
+    int quantite;
     time_t date;
     char etat[];
 }commande;
