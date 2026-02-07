@@ -1,0 +1,3 @@
+3;talan;0
+2;safran;0
+1;ikel;0

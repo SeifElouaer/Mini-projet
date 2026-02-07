@@ -1,0 +1,43 @@
+# depslib dependency file v1.0
+1770410170 source:c:\users\lenovo\downloads\files\client.c
+	"headers.h"
+
+1770475138 c:\users\lenovo\downloads\files\headers.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"pokemon.h"
+	"machine.h"
+	"client.h"
+	"commande.h"
+	"menu.h"
+
+1770476233 c:\users\lenovo\downloads\files\pokemon.h
+
+1770410170 c:\users\lenovo\downloads\files\machine.h
+
+1770410170 c:\users\lenovo\downloads\files\client.h
+
+1770410170 c:\users\lenovo\downloads\files\commande.h
+
+1770410170 c:\users\lenovo\downloads\files\menu.h
+
+1770458592 source:c:\users\lenovo\downloads\files\commande.c
+	"headers.h"
+
+1770458593 source:c:\users\lenovo\downloads\files\machine.c
+	"headers.h"
+
+1770410170 source:c:\users\lenovo\downloads\files\main.c
+	"headers.h"
+
+1770475138 source:c:\users\lenovo\downloads\files\menu.c
+	"headers.h"
+
+1770410170 source:c:\users\lenovo\downloads\files\pokemon.c
+	"headers.h"
+
+1770460315 source:c:\users\lenovo\downloads\files\production.c
+	"headers.h"
+
