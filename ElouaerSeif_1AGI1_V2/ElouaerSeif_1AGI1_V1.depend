@@ -1,0 +1,99 @@
+# depslib dependency file v1.0
+1769848011 source:c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\pokemon.c
+	"headers.h"
+
+1769848917 c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\headers.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"client.h"
+	"commande.h"
+	"machine.h"
+	"pokemon.h"
+	"menu.h"
+
+1769848938 c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\client.h
+	"headers.h"
+	"commande.h"
+
+1769734877 c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\commande.h
+	"headers.h"
+	<time.h>
+	"client.h"
+	"pokemon.h"
+
+1769733318 c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\machine.h
+	"headers.h"
+	"pokemon.h"
+
+1769709287 c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\pokemon.h
+	"headers.h"
+
+1769848011 source:c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\client.c
+	"headers.h"
+	"pokemon.h"
+
+1769848632 source:c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\commande.c
+	"headers.h"
+
+1769728985 c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\menu.h
+
+1769848978 source:c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\main.c
+	"headers.h"
+
+1769848011 source:c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\machine.c
+	"headers.h"
+
+1769848632 source:c:\users\lenovo\desktop\1agi1\s2\mini projet\mp_c_2025\elouaerseif_1agi1_v1\menu.c
+	"headers.h"
+
+1771021867 source:c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\client.c
+	"headers.h"
+
+1771022361 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\headers.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"pokemon.h"
+	"machine.h"
+	"client.h"
+	"commande.h"
+	"menu.h"
+	"production.h"
+
+1770934607 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\client.h
+	"headers.h"
+	"commande.h"
+
+1770933852 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\commande.h
+	"headers.h"
+	<time.h>
+
+1771021497 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\pokemon.h
+	"headers.h"
+
+1770940263 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\machine.h
+	"headers.h"
+
+1771022325 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\menu.h
+
+1771021929 source:c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\commande.c
+	"headers.h"
+
+1771022154 source:c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\machine.c
+	"headers.h"
+
+1770939987 source:c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\main.c
+	"headers.h"
+
+1771022399 source:c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\menu.c
+	"headers.h"
+
+1771022258 source:c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\pokemon.c
+	"headers.h"
+
+1771022325 c:\users\lenovo\desktop\1agi1\s2\mini projet c\mp_c_2025\elouaerseif_1agi1_v2\production.h
+	"headers.h"
+
