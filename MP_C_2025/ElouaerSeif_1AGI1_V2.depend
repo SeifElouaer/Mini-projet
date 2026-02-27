@@ -44,13 +44,14 @@
 1772215866 source:c:\users\chakra\desktop\mp_c_2025\client.c
 	"headers.h"
 
-1772215106 c:\users\chakra\desktop\mp_c_2025\headers.h
+1772227469 c:\users\chakra\desktop\mp_c_2025\headers.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<time.h>
-	"gui.h"
+	<math.h>
 	"raylib.h"
+	"gui.h"
 	"gui_elements.h"
 	"gui_context.h"
 	"pokemon.h"
@@ -58,7 +59,6 @@
 	"client.h"
 	"commande.h"
 	"menu.h"
-	"export.h"
 
 1772144443 c:\users\chakra\desktop\mp_c_2025\pokemon.h
 	"gui.h"
@@ -74,7 +74,7 @@
 1772215106 source:c:\users\chakra\desktop\mp_c_2025\commande.c
 	"headers.h"
 
-1772215969 source:c:\users\chakra\desktop\mp_c_2025\machine.c
+1772226843 source:c:\users\chakra\desktop\mp_c_2025\machine.c
 	"headers.h"
 
 1772145614 source:c:\users\chakra\desktop\mp_c_2025\main.c
@@ -91,10 +91,10 @@
 	"headers.h"
 	<math.h>
 
-1772215106 source:c:\users\chakra\desktop\mp_c_2025\gui.c
+1772226474 source:c:\users\chakra\desktop\mp_c_2025\gui.c
 	"headers.h"
 
-1772215106 c:\users\chakra\desktop\mp_c_2025\gui.h
+1772227469 c:\users\chakra\desktop\mp_c_2025\gui.h
 	"raylib.h"
 
 1772037288 c:\users\chakra\desktop\mp_c_2025\gui_elements.h

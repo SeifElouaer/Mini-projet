@@ -1,6 +1,10 @@
 #ifndef GUI_H_INCLUDED
 #define GUI_H_INCLUDED
+
+// gui.h n'est inclus QUE si GUI est defini (via headers.h)
+// On peut donc inclure raylib librement ici
 #include "raylib.h"
+
 typedef enum {
     ECRAN_MENU,
     ECRAN_POKEMON,
@@ -37,33 +41,28 @@ typedef enum {
     ECRAN_EXPORT
 } Ecran;
 
-
 // Couleur d'accent courante (change selon la section active)
 extern Color accentCourant;
 
 // ============================================================
-//  SYSTEME DE NOTIFICATIONS (messages in-game)
+//  SYSTEME DE NOTIFICATIONS
 // ============================================================
 typedef enum {
     NOTIF_SUCCES,   // vert
     NOTIF_ERREUR,   // rouge
-    NOTIF_INFO      // bleu/cyan
+    NOTIF_INFO      // bleu
 } TypeNotif;
 
 void UI_Notif(const char* message, TypeNotif type);
-void UI_NotifDraw(void);   // a appeler dans la boucle, apres UI_Draw()
+void UI_NotifDraw(void);
 
 // ============================================================
 //  POPUP DE CONFIRMATION
 // ============================================================
-// Affiche un popup "Confirmer ?" avec Oui/Non
-// Retourne 1 si Oui clique, -1 si Non clique, 0 si en attente
-// Appeler UI_PopupShow() pour ouvrir, UI_PopupDraw() chaque frame
 void UI_PopupShow(const char* message);
-int  UI_PopupDraw(void);   // 1=confirme, -1=annule, 0=en attente
+int  UI_PopupDraw(void);  // 1=confirme, -1=annule, 0=en attente
 
 bool bouton(Rectangle rect, const char* texte);
-
 void lancerInterface();
 
 #endif // GUI_H_INCLUDED

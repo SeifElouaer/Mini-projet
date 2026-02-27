@@ -415,10 +415,11 @@ void machineAjoutGUI(Ecran *ecranActuel)
     }
     UI_UpdateAndDraw();
     DrawText("AJOUTER MACHINE", 295, 50, 30, WHITE);
-    DrawText("Nom :",        180, 105, 20, WHITE);
-    DrawText("Capacite :",   180, 160, 20, WHITE);
-    DrawText("Temps prod :", 180, 215, 20, WHITE);
-    DrawText("Cout maint :", 180, 270, 20, WHITE);
+    DrawText("Nom :",        190, 105, 20, WHITE);
+    DrawText("Capacite :",   190, 160, 20, WHITE);
+    DrawText("Temps prod :", 190, 215, 20, WHITE);
+    DrawText("Cout maint :", 190, 270, 20, WHITE);
+
 
     if (bouton((Rectangle){320, 360, 250, 45}, "Valider"))
     {
