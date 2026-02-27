@@ -1,0 +1,195 @@
+# depslib dependency file v1.0
+1770410170 source:c:\users\lenovo\downloads\files\client.c
+	"headers.h"
+
+1770475138 c:\users\lenovo\downloads\files\headers.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"pokemon.h"
+	"machine.h"
+	"client.h"
+	"commande.h"
+	"menu.h"
+
+1770476233 c:\users\lenovo\downloads\files\pokemon.h
+
+1770410170 c:\users\lenovo\downloads\files\machine.h
+
+1770410170 c:\users\lenovo\downloads\files\client.h
+
+1770410170 c:\users\lenovo\downloads\files\commande.h
+
+1770410170 c:\users\lenovo\downloads\files\menu.h
+
+1770458592 source:c:\users\lenovo\downloads\files\commande.c
+	"headers.h"
+
+1770458593 source:c:\users\lenovo\downloads\files\machine.c
+	"headers.h"
+
+1770410170 source:c:\users\lenovo\downloads\files\main.c
+	"headers.h"
+
+1770475138 source:c:\users\lenovo\downloads\files\menu.c
+	"headers.h"
+
+1770410170 source:c:\users\lenovo\downloads\files\pokemon.c
+	"headers.h"
+
+1770460315 source:c:\users\lenovo\downloads\files\production.c
+	"headers.h"
+
+1772215866 source:c:\users\chakra\desktop\mp_c_2025\client.c
+	"headers.h"
+
+1772215106 c:\users\chakra\desktop\mp_c_2025\headers.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"gui.h"
+	"raylib.h"
+	"gui_elements.h"
+	"gui_context.h"
+	"pokemon.h"
+	"machine.h"
+	"client.h"
+	"commande.h"
+	"menu.h"
+	"export.h"
+
+1772144443 c:\users\chakra\desktop\mp_c_2025\pokemon.h
+	"gui.h"
+
+1772144443 c:\users\chakra\desktop\mp_c_2025\machine.h
+
+1772145613 c:\users\chakra\desktop\mp_c_2025\client.h
+
+1772192073 c:\users\chakra\desktop\mp_c_2025\commande.h
+
+1772215106 c:\users\chakra\desktop\mp_c_2025\menu.h
+
+1772215106 source:c:\users\chakra\desktop\mp_c_2025\commande.c
+	"headers.h"
+
+1772215969 source:c:\users\chakra\desktop\mp_c_2025\machine.c
+	"headers.h"
+
+1772145614 source:c:\users\chakra\desktop\mp_c_2025\main.c
+	"headers.h"
+	"gui.h"
+
+1772215106 source:c:\users\chakra\desktop\mp_c_2025\menu.c
+	"headers.h"
+
+1772215866 source:c:\users\chakra\desktop\mp_c_2025\pokemon.c
+	"headers.h"
+
+1772216024 source:c:\users\chakra\desktop\mp_c_2025\production.c
+	"headers.h"
+	<math.h>
+
+1772215106 source:c:\users\chakra\desktop\mp_c_2025\gui.c
+	"headers.h"
+
+1772215106 c:\users\chakra\desktop\mp_c_2025\gui.h
+	"raylib.h"
+
+1772037288 c:\users\chakra\desktop\mp_c_2025\gui_elements.h
+	"raylib.h"
+	<stdbool.h>
+
+1772117327 source:c:\users\chakra\desktop\mp_c_2025\gui_elements.c
+	"gui_elements.h"
+	<string.h>
+
+1772052495 source:c:\users\chakra\desktop\mp_c_2025\gui_context.c
+	"headers.h"
+
+1771965781 c:\users\chakra\desktop\mp_c_2025\gui_context.h
+	"gui_elements.h"
+
+1772215106 c:\users\chakra\desktop\mp_c_2025\export.h
+
+1772215866 source:c:\users\chakra\desktop\mp_c_2025\export.c
+	"headers.h"
+	<time.h>
+
+1772223403 source:c:\users\lenovo\downloads\mp_c_2025\client.c
+	"headers.h"
+
+1772225187 c:\users\lenovo\downloads\mp_c_2025\headers.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"pokemon.h"
+	"machine.h"
+	"client.h"
+	"commande.h"
+	"menu.h"
+	"export.h"
+	"gui.h"
+	"raylib.h"
+	"gui_elements.h"
+	"gui_context.h"
+
+1772222948 c:\users\lenovo\downloads\mp_c_2025\gui.h
+	"raylib.h"
+
+1772224968 c:\users\lenovo\downloads\mp_c_2025\gui_elements.h
+	"raylib.h"
+	<stdbool.h>
+
+1772222726 c:\users\lenovo\downloads\mp_c_2025\gui_context.h
+	"gui_elements.h"
+
+1772223295 c:\users\lenovo\downloads\mp_c_2025\pokemon.h
+	"gui.h"
+
+1772223306 c:\users\lenovo\downloads\mp_c_2025\machine.h
+
+1772223319 c:\users\lenovo\downloads\mp_c_2025\client.h
+
+1772223327 c:\users\lenovo\downloads\mp_c_2025\commande.h
+
+1772223362 c:\users\lenovo\downloads\mp_c_2025\menu.h
+
+1772224285 c:\users\lenovo\downloads\mp_c_2025\export.h
+
+1772223416 source:c:\users\lenovo\downloads\mp_c_2025\commande.c
+	"headers.h"
+
+1772223970 source:c:\users\lenovo\downloads\mp_c_2025\gui.c
+	"headers.h"
+
+1772224092 source:c:\users\lenovo\downloads\mp_c_2025\gui_context.c
+	"headers.h"
+
+1772224926 source:c:\users\lenovo\downloads\mp_c_2025\gui_elements.c
+	"gui_elements.h"
+	<string.h>
+
+1772224387 source:c:\users\lenovo\downloads\mp_c_2025\machine.c
+	"headers.h"
+
+1772223945 source:c:\users\lenovo\downloads\mp_c_2025\main.c
+	"headers.h"
+	"gui.h"
+
+1772224728 source:c:\users\lenovo\downloads\mp_c_2025\menu.c
+	"headers.h"
+
+1772224735 source:c:\users\lenovo\downloads\mp_c_2025\pokemon.c
+	"headers.h"
+
+1772224926 source:c:\users\lenovo\downloads\mp_c_2025\production.c
+	"headers.h"
+	<math.h>
+
+1772223423 source:c:\users\lenovo\downloads\mp_c_2025\export.c
+	"headers.h"
+	<time.h>
+
