@@ -235,6 +235,16 @@ void supprimerMachine(ListeMachine** liste) {
         return;
     }
 
+    printf("\n>>> Confirmation <<<\n");
+    printf("Supprimer la machine '%s' (ID:%d) ? (o/n): ",
+           current->data.nom, current->data.id);
+    char rep[4];
+    scanf("%s", rep);
+    if (rep[0] != 'o' && rep[0] != 'O') {
+        printf("Suppression annulee.\n");
+        return;
+    }
+
     if (prev == NULL) {
         *liste = current->next;
     } else {
@@ -397,19 +407,18 @@ void machineAjoutGUI(Ecran *ecranActuel)
     if (!ajoutInit)
     {
         UI_Clear();
-        tbNom      = UI_CreateTextBox((Rectangle){320, 125, 250, 38}, 20);
-        tbCapacite = UI_CreateTextBox((Rectangle){320, 180, 250, 38}, 10);
-        tbTemps    = UI_CreateTextBox((Rectangle){320, 235, 250, 38}, 10);
-        tbCout     = UI_CreateTextBox((Rectangle){320, 290, 250, 38}, 10);
+        tbNom      = UI_CreateTextBox((Rectangle){320, 105, 250, 38}, 20);
+        tbCapacite = UI_CreateTextBox((Rectangle){320, 160, 250, 38}, 10);
+        tbTemps    = UI_CreateTextBox((Rectangle){320, 215, 250, 38}, 10);
+        tbCout     = UI_CreateTextBox((Rectangle){320, 270, 250, 38}, 10);
         ajoutInit  = true;
     }
     UI_UpdateAndDraw();
     DrawText("AJOUTER MACHINE", 295, 50, 30, WHITE);
-    DrawText("Nom :",        215, 105, 20, WHITE);
-    DrawText("Capacite :",   215, 160, 20, WHITE);
-    DrawText("Temps prod :", 215, 215, 20, WHITE);
-    DrawText("Cout maint :", 215, 270, 20, WHITE);
-    DrawText("(ID genere automatiquement)", 215, 340, 15, (Color){180,180,180,255});
+    DrawText("Nom :",        180, 105, 20, WHITE);
+    DrawText("Capacite :",   180, 160, 20, WHITE);
+    DrawText("Temps prod :", 180, 215, 20, WHITE);
+    DrawText("Cout maint :", 180, 270, 20, WHITE);
 
     if (bouton((Rectangle){320, 360, 250, 45}, "Valider"))
     {
@@ -426,11 +435,11 @@ void machineAjoutGUI(Ecran *ecranActuel)
                 m->data.idCommande=0; m->data.idPokemon=0;
                 m->data.dateDisponibilite=0;
                 m->next = listeMachines; listeMachines = m;
-                printf("Machine ajoutee : %s (ID:%d)\n", m->data.nom, m->data.id);
+                UI_Notif(TextFormat("Machine ajoutee : %s (ID:%d)", m->data.nom, m->data.id), NOTIF_SUCCES);
                 tbNom->text[0]='\0'; tbCapacite->text[0]='\0';
                 tbTemps->text[0]='\0'; tbCout->text[0]='\0';
             }
-        } else printf("Nom obligatoire.\n");
+        } else UI_Notif("Nom obligatoire.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){320, 420, 250, 45}, "Retour"))
     { UI_Clear(); ajoutInit=false; *ecranActuel=ECRAN_MACHINE_MENU; }
@@ -461,7 +470,6 @@ void machineModifGUI(Ecran *ecranActuel)
     DrawText("Capacite :",  10, 180, 17, WHITE);
     DrawText("Temps :",     10, 235, 17, WHITE);
     DrawText("Cout :",      10, 290, 17, WHITE);
-    DrawText("vide=inchange", 10, 350, 13, (Color){180,180,180,255});
     DrawText("Machines :", 190, 52, 17, WHITE);
 
     if (bouton((Rectangle){10, 370, 170, 40}, "Valider"))
@@ -474,11 +482,11 @@ void machineModifGUI(Ecran *ecranActuel)
                 if (strlen(tbModifCap->text)  > 0) node->data.nbMax = atoi(tbModifCap->text);
                 if (strlen(tbModifTps->text)  > 0) node->data.tempsProd = atoi(tbModifTps->text);
                 if (strlen(tbModifCout->text) > 0) node->data.coutMaint = atof(tbModifCout->text);
-                printf("Machine %d modifiee.\n", id);
+                UI_Notif(TextFormat("Machine %d modifiee avec succes.", id), NOTIF_SUCCES);
                 tbModifID->text[0]='\0'; tbModifNom->text[0]='\0';
                 tbModifCap->text[0]='\0'; tbModifTps->text[0]='\0'; tbModifCout->text[0]='\0';
                 fillMachList(machListModif, machLabModif);
-            } else printf("Machine introuvable.\n");
+            } else UI_Notif("Machine introuvable. Verifiez l'ID.", NOTIF_ERREUR);
         }
     }
     if (bouton((Rectangle){10, 425, 170, 40}, "Retour"))
@@ -502,20 +510,35 @@ void machineSuppGUI(Ecran *ecranActuel)
     DrawText("ID a supprimer :", 10, 130, 17, WHITE);
     DrawText("Machines :", 190, 52, 17, WHITE);
 
+    // Gestion popup confirmation
+    static int machSuppPendingID = 0;
+    int popupRes = UI_PopupDraw();
+    if (popupRes == 1 && machSuppPendingID > 0)
+    {
+        ListeMachine* cur=listeMachines; ListeMachine* prev=NULL;
+        while (cur && cur->data.id!=machSuppPendingID) { prev=cur; cur=cur->next; }
+        if (cur) {
+            if (prev) prev->next=cur->next; else listeMachines=cur->next;
+            free(cur);
+            UI_Notif(TextFormat("Machine %d supprimee.", machSuppPendingID), NOTIF_SUCCES);
+            tbSuppID->text[0]='\0';
+            fillMachList(machListSupp, machLabSupp);
+        }
+        machSuppPendingID = 0;
+    }
+    else if (popupRes == -1) { machSuppPendingID = 0; UI_Notif("Suppression annulee.", NOTIF_INFO); }
+
     if (bouton((Rectangle){10, 205, 170, 40}, "Supprimer"))
     {
         int id = atoi(tbSuppID->text);
         if (id > 0) {
-            ListeMachine* cur=listeMachines; ListeMachine* prev=NULL;
-            while (cur && cur->data.id!=id) { prev=cur; cur=cur->next; }
+            ListeMachine* cur = listeMachines;
+            while (cur && cur->data.id != id) cur = cur->next;
             if (cur) {
-                if (prev) prev->next=cur->next; else listeMachines=cur->next;
-                free(cur);
-                printf("Machine %d supprimee.\n", id);
-                tbSuppID->text[0]='\0';
-                fillMachList(machListSupp, machLabSupp);
-            } else printf("Machine introuvable.\n");
-        }
+                machSuppPendingID = id;
+                UI_PopupShow(TextFormat("Supprimer machine '%s' (ID:%d) ?", cur->data.nom, id));
+            } else UI_Notif("Machine introuvable. Verifiez l'ID.", NOTIF_ERREUR);
+        } else UI_Notif("Entrez un ID valide.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){10, 260, 170, 40}, "Retour"))
     { UI_Clear(); suppInit=false; *ecranActuel=ECRAN_MACHINE_MENU; }

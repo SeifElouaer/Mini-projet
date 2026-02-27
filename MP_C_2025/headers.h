@@ -125,7 +125,14 @@ void menuCommandeGUI(Ecran *ecranActuel);
 void commandeAjoutGUI(Ecran *ecranActuel);
 void commandeModifGUI(Ecran *ecranActuel);
 void commandeSuppGUI(Ecran *ecranActuel);
+void commandeAffGUI(Ecran *ecranActuel);
 void menuProductionGUI(Ecran *ecranActuel);
+
+// Export CSV
+#include "export.h"
+
+// Camembert console
+void afficherCamembertConsole(ListeCommande* listeCommandes, ListePokemon* listePokemons);
 void prodRealiserGUI(Ecran *ecranActuel);
 void prodEntretenirGUI(Ecran *ecranActuel);
 void prodEtatGUI(Ecran *ecranActuel);

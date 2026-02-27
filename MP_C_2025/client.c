@@ -160,6 +160,16 @@ void supprimerClient(ListeClient** liste) {
         return;
     }
 
+    printf("\n>>> Confirmation <<<\n");
+    printf("Supprimer le client '%s' (Matricule:%d) et toutes ses commandes ? (o/n): ",
+           current->data.nom, current->data.matricule);
+    char rep[4];
+    scanf("%s", rep);
+    if (rep[0] != 'o' && rep[0] != 'O') {
+        printf("Suppression annulee.\n");
+        return;
+    }
+
     // Libérer les commandes du client
     libererListeCommande(&(current->data.commandes));
 
@@ -361,7 +371,7 @@ void clientAjoutGUI(Ecran *ecranActuel)
     UI_UpdateAndDraw();
 
     DrawText("AJOUTER CLIENT", 300, 80, 30, WHITE);
-    DrawText("L'ID (matricule) sera genere automatiquement.", 170, 160, 18, WHITE);
+    DrawText("Votre matricule sera genere automatiquement.", 170, 160, 18, WHITE);
     DrawText("Entrez le nom du client :", 230, 255, 20, WHITE);
 
     if (bouton((Rectangle){320, 340, 260, 45}, "Valider"))
@@ -376,11 +386,11 @@ void clientAjoutGUI(Ecran *ecranActuel)
                 n->data.commandes = NULL;
                 n->next = listeClients;
                 listeClients = n;
-                printf("Client ajoute : %s (ID:%d)\n", n->data.nom, n->data.matricule);
+                UI_Notif(TextFormat("Client ajoute : %s (ID:%d).", n->data.nom, n->data.matricule), NOTIF_SUCCES);
                 tbCliNomAjout->text[0] = '\0';
             }
         }
-        else printf("Nom obligatoire.\n");
+        else UI_Notif("Nom obligatoire.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){320, 400, 260, 45}, "Retour"))
     {
@@ -410,7 +420,6 @@ void clientModifGUI(Ecran *ecranActuel)
     // Labels AU-DESSUS des TextBox
     DrawText("Matricule :", 10, 75,  18, WHITE);
     DrawText("Nouveau Nom :", 10, 140, 18, WHITE);
-    DrawText("(vide=inchange)", 10, 200, 13, (Color){180,180,180,255});
     DrawText("Clients :", 190, 50, 18, WHITE);
 
     if (bouton((Rectangle){10, 220, 165, 40}, "Valider"))
@@ -425,9 +434,9 @@ void clientModifGUI(Ecran *ecranActuel)
                 tbCliModifMat->text[0] = '\0';
                 tbCliModifNom->text[0] = '\0';
                 fillCliList(cliListModif, cliLabModif);
-                printf("Client modifie.\n");
+                UI_Notif("Client modifie avec succes.", NOTIF_SUCCES);
             }
-            else printf("Client introuvable.\n");
+            else UI_Notif("Client introuvable. Verifiez l'ID.", NOTIF_ERREUR);
         }
     }
     if (bouton((Rectangle){10, 275, 165, 40}, "Retour"))
@@ -455,26 +464,37 @@ void clientSuppGUI(Ecran *ecranActuel)
     DrawText("Matricule :", 10, 135, 18, WHITE);
     DrawText("Clients :", 190, 50, 18, WHITE);
 
+    // Gestion popup confirmation
+    static int cliSuppPendingMat = 0;
+    int popupRes = UI_PopupDraw();
+    if (popupRes == 1 && cliSuppPendingMat > 0)
+    {
+        ListeClient* cur = listeClients; ListeClient* prev = NULL;
+        while (cur && cur->data.matricule != cliSuppPendingMat) { prev=cur; cur=cur->next; }
+        if (cur) {
+            libererListeCommande(&(cur->data.commandes));
+            if (prev) prev->next = cur->next; else listeClients = cur->next;
+            free(cur);
+            tbCliSuppMat->text[0] = '\0';
+            fillCliList(cliListSupp, cliLabSupp);
+            UI_Notif("Client supprime avec succes.", NOTIF_SUCCES);
+        }
+        cliSuppPendingMat = 0;
+    }
+    else if (popupRes == -1) { cliSuppPendingMat = 0; UI_Notif("Suppression annulee.", NOTIF_INFO); }
+
     if (bouton((Rectangle){10, 210, 165, 40}, "Supprimer"))
     {
         int mat = atoi(tbCliSuppMat->text);
-        if (mat > 0)
-        {
+        if (mat > 0) {
             ListeClient* cur = listeClients;
-            ListeClient* prev = NULL;
-            while (cur && cur->data.matricule != mat) { prev = cur; cur = cur->next; }
-            if (cur)
-            {
-                libererListeCommande(&(cur->data.commandes));
-                if (prev) prev->next = cur->next;
-                else listeClients = cur->next;
-                free(cur);
-                tbCliSuppMat->text[0] = '\0';
-                fillCliList(cliListSupp, cliLabSupp);
-                printf("Client supprime.\n");
-            }
-            else printf("Client introuvable.\n");
-        }
+            while (cur && cur->data.matricule != mat) cur = cur->next;
+            if (cur) {
+                cliSuppPendingMat = mat;
+                UI_PopupShow(TextFormat("Supprimer client '%s' (mat:%d) et ses commandes ?",
+                             cur->data.nom, mat));
+            } else UI_Notif("Client introuvable. Verifiez le matricule.", NOTIF_ERREUR);
+        } else UI_Notif("Entrez un matricule valide.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){10, 265, 165, 40}, "Retour"))
     {

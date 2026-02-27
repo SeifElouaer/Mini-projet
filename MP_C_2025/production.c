@@ -1,4 +1,5 @@
 #include "headers.h"
+#include <math.h>
 
 // Variable globale pour la caisse (valeur definie dans headers.h)
 float caisse = CAISSE_INITIALE;
@@ -461,199 +462,636 @@ void afficherClassementPokemons(ListeCommande* listeCommandes, ListePokemon* lis
     free(stats);
 }
 
+// ============================================================
+//  CAMEMBERT ASCII CONSOLE
+//  Affiche un vrai camembert en art ASCII dans le terminal
+// ============================================================
+void afficherCamembertConsole(ListeCommande* listeCommandes, ListePokemon* listePokemons)
+{
+    // Compter ventes par pokemon
+    typedef struct { char nom[20]; int vendu; float pct; } StatC;
+    StatC stats[50]; int nb = 0;
+    int totalVendu = 0;
+
+    ListePokemon* pok = listePokemons;
+    while (pok && nb < 50)
+    {
+        stats[nb].vendu = 0;
+        strcpy(stats[nb].nom, pok->data.nom);
+        ListeCommande* cmd = listeCommandes;
+        while (cmd) {
+            if (cmd->data.idPokemon == pok->data.id && cmd->data.etat == 2)
+                stats[nb].vendu += cmd->data.quantiteProduite;
+            cmd = cmd->next;
+        }
+        totalVendu += stats[nb].vendu;
+        nb++;
+        pok = pok->next;
+    }
+
+    if (totalVendu == 0) {
+        printf("\nAucune vente pour le camembert.\n");
+        return;
+    }
+
+    // Calculer pourcentages
+    for (int i = 0; i < nb; i++)
+        stats[i].pct = (totalVendu > 0) ? (stats[i].vendu * 100.0f / totalVendu) : 0.0f;
+
+    // Caracteres de remplissage ASCII (simulent les secteurs)
+    const char* symboles[] = {"#", "@", "%", "&", "*", "+", "=", "~", "?", "!"};
+    const int   NBSYM = 10;
+
+    printf("\n");
+    printf("========================================\n");
+    printf("   CAMEMBERT - VENTES PAR POKEMON\n");
+    printf("========================================\n\n");
+
+    // Dessiner un camembert ASCII (cercle 37x19 chars)
+    int R  = 9;           // rayon Y (demi-hauteur)
+    int RX = 19;          // rayon X (compensé aspect ratio terminal)
+    int CX = 20;          // centre X
+    int CY = 10;          // centre Y
+    int W  = 41;
+    int H  = 21;
+
+    char grille[21][42];
+    memset(grille, ' ', sizeof(grille));
+    for (int y = 0; y < H; y++) grille[y][W] = '\0';
+
+    // Pour chaque pixel, determiner l'angle et le secteur
+    for (int y = 0; y < H; y++)
+    {
+        for (int x = 0; x < W; x++)
+        {
+            float dx = (float)(x - CX) / RX;
+            float dy = (float)(y - CY) / R;
+            if (dx*dx + dy*dy > 1.0f) continue;  // hors cercle
+
+            // Angle en degres [0, 360)
+            float angle = atan2f(dy, dx) * 180.0f / 3.14159f;
+            if (angle < 0) angle += 360.0f;
+
+            // Trouver le secteur
+            float cumul = 0.0f;
+            int secteur = 0;
+            for (int i = 0; i < nb; i++)
+            {
+                cumul += stats[i].pct * 3.6f;  // % -> degrees
+                if (angle < cumul || i == nb-1) { secteur = i; break; }
+            }
+
+            if (stats[secteur].vendu > 0)
+                grille[y][x] = symboles[secteur % NBSYM][0];
+            else
+                grille[y][x] = '.';
+        }
+    }
+
+    // Afficher la grille
+    for (int y = 0; y < H; y++)
+        printf("  %s\n", grille[y]);
+
+    // Legende
+    printf("\n  LEGENDE:\n");
+    for (int i = 0; i < nb; i++)
+    {
+        if (stats[i].vendu == 0) continue;
+        printf("  [%s] %-12s : %d vendu(s)  (%.1f%%)\n",
+               symboles[i % NBSYM],
+               stats[i].nom,
+               stats[i].vendu,
+               stats[i].pct);
+    }
+    printf("\n  Total: %d figurines vendues\n", totalVendu);
+    printf("========================================\n");
+}
+
 #ifdef GUI
 
+// ============================================================
+//  TOUTES LES EXTERN EN PREMIER
+// ============================================================
 extern ListeCommande* listeCommandes;
-extern ListePokemon*  listePokemons;
 extern ListeMachine*  listeMachines;
+extern ListePokemon*  listePokemons;
 extern ListeClient*   listeClients;
 
-static bool prodRealInit=false;
-static TextBox* tbProdCmdID=NULL;
-static ScrollableList* cmdListProd=NULL;
-static char cmdLabProd[MAX_ITEMS][200];
+// ============================================================
+//  VARIABLES STATIQUES
+// ============================================================
+static bool prodRealInit  = false;
+static bool prodEntInit   = false;
+static bool prodEtatInit  = false;
 
-static bool prodEntInit=false;
-static TextBox* tbProdMachID=NULL;
-static ScrollableList* machListProd=NULL;
+static TextBox*        tbProdCmdID  = NULL;
+static TextBox*        tbProdMachID = NULL;
+static ScrollableList* cmdListProd  = NULL;
+static ScrollableList* machListProd = NULL;
+static ScrollableList* machListEtat = NULL;
+
+static char cmdLabProd [MAX_ITEMS][200];
 static char machLabProd[MAX_ITEMS][200];
-
-static bool prodEtatInit=false;
-static ScrollableList* machListEtat=NULL;
 static char machLabEtat[MAX_ITEMS][200];
 
-static void refreshCmdProd()
+// ============================================================
+//  REFRESH HELPERS
+// ============================================================
+static void refreshCmdProd(void)
 {
-    if(!cmdListProd) return;
+    if (!cmdListProd) return;
     UI_ListClear(cmdListProd);
-    ListeCommande* tmp=listeCommandes; int i=0;
-    while(tmp && i<MAX_ITEMS){
-        const char* et=(tmp->data.etat==0)?"Attente":(tmp->data.etat==1)?"En cours":"Realisee";
-        sprintf(cmdLabProd[i],"ID:%-3d | Pok:%-3d | Cli:%-3d | %d/%d | %s",
-                tmp->data.id,tmp->data.idPokemon,tmp->data.matriculeClient,
-                tmp->data.quantiteProduite,tmp->data.quantite,et);
-        UI_ListAddItem(cmdListProd,cmdLabProd[i]);
-        tmp=tmp->next; i++;
+    ListeCommande* tmp = listeCommandes;
+    int i = 0;
+    while (tmp && i < MAX_ITEMS)
+    {
+        const char* et = (tmp->data.etat==0)?"Attente"
+                       : (tmp->data.etat==1)?"En cours":"Realisee";
+        sprintf(cmdLabProd[i], "ID:%-3d | Pok:%-3d | Cli:%-3d | %d/%d | %s",
+                tmp->data.id, tmp->data.idPokemon, tmp->data.matriculeClient,
+                tmp->data.quantiteProduite, tmp->data.quantite, et);
+        UI_ListAddItem(cmdListProd, cmdLabProd[i]);
+        tmp = tmp->next;
+        i++;
     }
 }
 
-static void refreshMachProd(ScrollableList* list, char labels[][200])
+static void refreshMachList(ScrollableList* list, char labels[][200])
 {
-    if(!list) return;
+    if (!list) return;
     UI_ListClear(list);
-    ListeMachine* tmp=listeMachines; int i=0;
-    while(tmp && i<MAX_ITEMS){
-        const char* et=(tmp->data.etat==0)?"Libre":(tmp->data.etat==1)?"Occupee":"Maintenance";
-        sprintf(labels[i],"ID:%-3d | %-10s | %s | %d/%d | Cmd:%d",
-                tmp->data.id,tmp->data.nom,et,
-                tmp->data.compteur,tmp->data.nbMax,tmp->data.idCommande);
-        UI_ListAddItem(list,labels[i]);
-        tmp=tmp->next; i++;
+    ListeMachine* tmp = listeMachines;
+    int i = 0;
+    while (tmp && i < MAX_ITEMS)
+    {
+        const char* et = (tmp->data.etat==0)?"Libre"
+                       : (tmp->data.etat==1)?"Occupee":"Maintenance";
+        sprintf(labels[i], "ID:%-3d | %-10s | %s | %d/%d | Cmd:%d",
+                tmp->data.id, tmp->data.nom, et,
+                tmp->data.compteur, tmp->data.nbMax, tmp->data.idCommande);
+        UI_ListAddItem(list, labels[i]);
+        tmp = tmp->next;
+        i++;
     }
 }
 
-// ===== MENU PRINCIPAL PRODUCTION =====
+// ============================================================
+//  AUTO-VERIFICATION des productions terminées (appelée chaque frame)
+// ============================================================
+static void verifierProductionsTerminees(void)
+{
+    time_t now = time(NULL);
+    ListeMachine* mach = listeMachines;
+    while (mach != NULL)
+    {
+        if (   mach->data.etat == 1
+            && mach->data.idCommande != 0
+            && mach->data.dateDisponibilite > 0
+            && mach->data.dateDisponibilite <= now)
+        {
+            int idCmd = mach->data.idCommande;
+
+            // Verifier que commande et pokemon existent avant de finaliser
+            ListeCommande* cNode = rechercherCommande(listeCommandes, idCmd);
+            if (cNode != NULL)
+            {
+                ListePokemon* pNode = rechercherPokemon(listePokemons, cNode->data.idPokemon);
+                if (pNode != NULL)
+                {
+                    finaliserProduction(&listeCommandes, &listeMachines, idCmd);
+                    UI_Notif(TextFormat("Production terminee ! Commande %d finalisee.", idCmd),
+                             NOTIF_SUCCES);
+                    // Relire depuis le debut car la liste a pu changer
+                    mach = listeMachines;
+                    continue;
+                }
+                else
+                {
+                    // Pokemon introuvable : reset machine proprement pour eviter boucle infinie
+                    mach->data.etat = 0;
+                    mach->data.idCommande = 0;
+                    mach->data.dateDisponibilite = 0;
+                    UI_Notif(TextFormat("Machine %d resetee : pokemon ID %d introuvable.",
+                             mach->data.id, cNode->data.idPokemon), NOTIF_ERREUR);
+                }
+            }
+            else
+            {
+                // Commande introuvable : reset machine
+                mach->data.etat = 0;
+                mach->data.idCommande = 0;
+                mach->data.dateDisponibilite = 0;
+                UI_Notif(TextFormat("Machine %d resetee : commande %d introuvable.",
+                         mach->data.id, idCmd), NOTIF_ERREUR);
+            }
+        }
+        mach = mach->next;
+    }
+}
+
+// ============================================================
+//  MENU PRINCIPAL PRODUCTION
+// ============================================================
 void menuProductionGUI(Ecran *ecranActuel)
 {
-    DrawText("PRODUCTION ET MAINTENANCE", 175, 50, 30, WHITE);
-    if (bouton((Rectangle){300,150,280,50},"Realiser Commande"))  *ecranActuel=ECRAN_PROD_REALISER;
-    if (bouton((Rectangle){300,220,280,50},"Entretenir Machine")) *ecranActuel=ECRAN_PROD_ENTRETENIR;
-    if (bouton((Rectangle){300,290,280,50},"Etat des Machines"))  *ecranActuel=ECRAN_PROD_ETAT;
-    if (bouton((Rectangle){300,430,280,50},"Retour"))             *ecranActuel=ECRAN_MENU;
+    verifierProductionsTerminees();
+    DrawText("PRODUCTION ET MAINTENANCE", 310, 50, 30, WHITE);
+    if (bouton((Rectangle){300,150,280,50},"Realiser Commande"))  *ecranActuel = ECRAN_PROD_REALISER;
+    if (bouton((Rectangle){300,220,280,50},"Entretenir Machine")) *ecranActuel = ECRAN_PROD_ENTRETENIR;
+    if (bouton((Rectangle){300,290,280,50},"Etat des Machines"))  *ecranActuel = ECRAN_PROD_ETAT;
+    if (bouton((Rectangle){300,430,280,50},"Retour"))             *ecranActuel = ECRAN_MENU;
 }
 
-// ===== REALISER COMMANDE =====
+// ============================================================
+//  REALISER COMMANDE
+// ============================================================
 void prodRealiserGUI(Ecran *ecranActuel)
 {
-    if (!prodRealInit) {
+    verifierProductionsTerminees();
+
+    if (!prodRealInit)
+    {
         UI_Clear();
-        tbProdCmdID=UI_CreateTextBox((Rectangle){10,118,163,34},10);
-        cmdListProd=UI_CreateList((Rectangle){188,70,698,415});
-        prodRealInit=true;
+        tbProdCmdID = UI_CreateTextBox((Rectangle){10,118,163,34}, 10);
+        cmdListProd = UI_CreateList((Rectangle){188,70,1075,550});
+        prodRealInit = true;
         refreshCmdProd();
     }
     UI_UpdateAndDraw();
-    DrawText("REALISER UNE COMMANDE", 225, 18, 28, WHITE);
-    DrawText("ID Commande :", 10, 96, 17, WHITE);   // label au-dessus
-    DrawText("Commandes :", 188, 50, 17, WHITE);
 
-    if (bouton((Rectangle){10,175,163,38},"Realiser")) {
-        int id=atoi(tbProdCmdID->text);
-        if(id>0){
-            realiserCommande(&listeCommandes,&listeMachines,listePokemons,id);
-            tbProdCmdID->text[0]='\0';
-            refreshCmdProd();
-        } else printf("ID invalide.\n");
+    DrawText("REALISER UNE COMMANDE", 430, 25, 28, WHITE);
+    DrawText("ID Commande :",          10,  96, 17, WHITE);
+    DrawText("Commandes :",           188,  50, 17, WHITE);
+
+    if (bouton((Rectangle){10,175,163,40},"Realiser"))
+    {
+        int id = atoi(tbProdCmdID->text);
+        if (id > 0)
+        {
+            ListeCommande* cNode = rechercherCommande(listeCommandes, id);
+            if (!cNode)
+            {
+                UI_Notif(TextFormat("Commande %d introuvable.", id), NOTIF_ERREUR);
+            }
+            else if (cNode->data.etat == 2)
+            {
+                UI_Notif("Cette commande est deja realisee.", NOTIF_INFO);
+            }
+            else
+            {
+                ListeMachine* mNode = rechercherMachineParPokemon(listeMachines,
+                                                                   cNode->data.idPokemon);
+                if (!mNode)
+                {
+                    UI_Notif(TextFormat("Aucune machine pour le Pokemon ID:%d !",
+                             cNode->data.idPokemon), NOTIF_ERREUR);
+                }
+                else if (mNode->data.etat == 2)
+                {
+                    UI_Notif(TextFormat("Machine '%s' en maintenance ! Entretenez-la d'abord.",
+                             mNode->data.nom), NOTIF_ERREUR);
+                }
+                else if (mNode->data.etat == 1)
+                {
+                    time_t now = time(NULL);
+                    if (mNode->data.dateDisponibilite > now)
+                    {
+                        double sec = difftime(mNode->data.dateDisponibilite, now);
+                        UI_Notif(TextFormat("Machine occupee ! Temps restant: %dm %ds",
+                                 (int)(sec/60), (int)sec%60), NOTIF_INFO);
+                    }
+                    else
+                    {
+                        // Timer ecoulé, finaliser et relancer
+                        realiserCommande(&listeCommandes, &listeMachines, listePokemons, id);
+                        UI_Notif(TextFormat("Production finalisee et relancee (Cmd %d).", id),
+                                 NOTIF_SUCCES);
+                        tbProdCmdID->text[0] = '\0';
+                        refreshCmdProd();
+                    }
+                }
+                else
+                {
+                    // Machine libre
+                    int restant = cNode->data.quantite - cNode->data.quantiteProduite;
+                    int tmin    = restant * mNode->data.tempsProd;
+                    realiserCommande(&listeCommandes, &listeMachines, listePokemons, id);
+                    UI_Notif(TextFormat("Production lancee ! Duree estimee: ~%d min.", tmin),
+                             NOTIF_SUCCES);
+                    tbProdCmdID->text[0] = '\0';
+                    refreshCmdProd();
+                }
+            }
+        }
+        else
+        {
+            UI_Notif("Entrez un ID de commande valide.", NOTIF_ERREUR);
+        }
     }
-    if (bouton((Rectangle){10,228,163,38},"Retour")) {
-        UI_Clear(); prodRealInit=false; *ecranActuel=ECRAN_PROD_MENU;
+
+    if (bouton((Rectangle){10,228,163,40},"Retour"))
+    {
+        UI_Clear();
+        prodRealInit = false;
+        *ecranActuel = ECRAN_PROD_MENU;
     }
 }
 
-// ===== ENTRETENIR MACHINE =====
+// ============================================================
+//  ENTRETENIR MACHINE
+// ============================================================
 void prodEntretenirGUI(Ecran *ecranActuel)
 {
-    if (!prodEntInit) {
+    verifierProductionsTerminees();
+
+    if (!prodEntInit)
+    {
         UI_Clear();
-        tbProdMachID=UI_CreateTextBox((Rectangle){10,118,163,34},10);
-        machListProd=UI_CreateList((Rectangle){188,70,698,415});
-        prodEntInit=true;
-        refreshMachProd(machListProd,machLabProd);
+        tbProdMachID = UI_CreateTextBox((Rectangle){10,118,163,34}, 10);
+        machListProd = UI_CreateList((Rectangle){188,70,1075,550});
+        prodEntInit  = true;
+        refreshMachList(machListProd, machLabProd);
     }
     UI_UpdateAndDraw();
-    DrawText("ENTRETENIR UNE MACHINE", 218, 18, 28, WHITE);
-    DrawText("ID Machine :", 10, 96, 17, WHITE);   // label au-dessus
-    DrawText("Machines :", 188, 50, 17, WHITE);
 
-    if (bouton((Rectangle){10,175,163,38},"Entretenir")) {
-        int id=atoi(tbProdMachID->text);
-        if(id>0){
-            entretenirMachine(&listeMachines,id);
-            tbProdMachID->text[0]='\0';
-            refreshMachProd(machListProd,machLabProd);
-        } else printf("ID invalide.\n");
+    DrawText("ENTRETENIR UNE MACHINE", 420, 25, 28, WHITE);
+    DrawText("ID Machine :",           10,  96, 17, WHITE);
+    DrawText("Machines :",            188,  50, 17, WHITE);
+
+    if (bouton((Rectangle){10,175,163,40},"Entretenir"))
+    {
+        int id = atoi(tbProdMachID->text);
+        if (id > 0)
+        {
+            ListeMachine* mNode = rechercherMachine(listeMachines, id);
+            if (!mNode)
+            {
+                UI_Notif(TextFormat("Machine %d introuvable.", id), NOTIF_ERREUR);
+            }
+            else if (mNode->data.etat != 2)
+            {
+                const char* et = (mNode->data.etat==0) ? "Libre" : "Occupee";
+                UI_Notif(TextFormat("Machine non en maintenance (etat: %s).", et),
+                         NOTIF_INFO);
+            }
+            else if (caisse < mNode->data.coutMaint)
+            {
+                UI_Notif(TextFormat("Caisse insuffisante ! %.2f / %.2f pieces.",
+                         caisse, mNode->data.coutMaint), NOTIF_ERREUR);
+            }
+            else
+            {
+                entretenirMachine(&listeMachines, id);
+                UI_Notif(TextFormat("Machine %d entretenue ! Nouvelle caisse: %.2f pieces.",
+                         id, caisse), NOTIF_SUCCES);
+                tbProdMachID->text[0] = '\0';
+                refreshMachList(machListProd, machLabProd);
+            }
+        }
+        else
+        {
+            UI_Notif("Entrez un ID de machine valide.", NOTIF_ERREUR);
+        }
     }
-    if (bouton((Rectangle){10,228,163,38},"Retour")) {
-        UI_Clear(); prodEntInit=false; *ecranActuel=ECRAN_PROD_MENU;
+
+    if (bouton((Rectangle){10,228,163,40},"Retour"))
+    {
+        UI_Clear();
+        prodEntInit  = false;
+        *ecranActuel = ECRAN_PROD_MENU;
     }
 }
 
-// ===== ETAT DES MACHINES =====
+// ============================================================
+//  ETAT DES MACHINES
+// ============================================================
 void prodEtatGUI(Ecran *ecranActuel)
 {
-    if (!prodEtatInit) {
+    verifierProductionsTerminees();
+
+    if (!prodEtatInit)
+    {
         UI_Clear();
-        machListEtat=UI_CreateList((Rectangle){60,90,770,390});
-        refreshMachProd(machListEtat,machLabEtat);
-        prodEtatInit=true;
+        machListEtat = UI_CreateList((Rectangle){60,90,1200,560});
+        refreshMachList(machListEtat, machLabEtat);
+        prodEtatInit = true;
     }
     UI_UpdateAndDraw();
-    DrawText("ETAT DES MACHINES", 285, 45, 30, WHITE);
-    if (bouton((Rectangle){330,500,230,45},"Retour")) {
-        UI_Clear(); prodEtatInit=false; *ecranActuel=ECRAN_PROD_MENU;
+
+    DrawText("ETAT DES MACHINES", 490, 40, 30, WHITE);
+
+    if (bouton((Rectangle){530,680,230,45},"Retour"))
+    {
+        UI_Clear();
+        prodEtatInit = false;
+        *ecranActuel = ECRAN_PROD_MENU;
     }
 }
 
-void afficherCaisse() { printf("Caisse : %.2f pieces\n",caisse); }
+// ============================================================
+//  ETAT DE L'USINE (statistiques)
+// ============================================================
+void afficherCaisse(void) { printf("Caisse : %.2f pieces\n", caisse); }
 
 void menuEtatUsineGUI(Ecran *ecranActuel)
 {
-    DrawText("ETAT DE L'USINE", 290, 30, 30, WHITE);
-    DrawText(TextFormat("Caisse : %.2f pieces",caisse),           290,100,22,GREEN);
-    DrawText(TextFormat("Pokemons  : %d",compterPokemons(listePokemons)),  290,140,20,WHITE);
-    DrawText(TextFormat("Machines  : %d",compterMachines(listeMachines)),  290,170,20,WHITE);
-    DrawText(TextFormat("Clients   : %d",compterClients(listeClients)),    290,200,20,WHITE);
-    DrawText(TextFormat("Commandes : %d",compterCommandes(listeCommandes)),290,230,20,WHITE);
-    int ea=0,ec=0,er=0; ListeCommande* cmd=listeCommandes;
-    while(cmd){if(cmd->data.etat==0)ea++;else if(cmd->data.etat==1)ec++;else er++;cmd=cmd->next;}
-    DrawText("-- Commandes --",                       290,270,18,GREEN);
-    DrawText(TextFormat("En attente : %d",ea),        290,295,18,ORANGE);
-    DrawText(TextFormat("En cours   : %d",ec),        290,318,18,BLUE);
-    DrawText(TextFormat("Realisees  : %d",er),        290,341,18,GREEN);
-    int li=0,oc=0,ma=0; ListeMachine* mach=listeMachines;
-    while(mach){if(mach->data.etat==0)li++;else if(mach->data.etat==1)oc++;else ma++;mach=mach->next;}
-    DrawText("-- Machines --",                        290,375,18,GREEN);
-    DrawText(TextFormat("Libres      : %d",li),       290,398,18,GREEN);
-    DrawText(TextFormat("Occupees    : %d",oc),       290,421,18,BLUE);
-    DrawText(TextFormat("Maintenance : %d",ma),       290,444,18,RED);
-    if (bouton((Rectangle){340,505,200,45},"Retour")) *ecranActuel=ECRAN_MENU;
+    DrawText("ETAT DE L'USINE", 490, 30, 30, WHITE);
+    DrawText(TextFormat("Caisse : %.2f pieces", caisse), 390,100,24,DARKGREEN);
+
+    DrawText(TextFormat("Pokemons  : %d", compterPokemons(listePokemons)), 390,145,20,WHITE);
+    DrawText(TextFormat("Machines  : %d", compterMachines(listeMachines)), 390,175,20,WHITE);
+    DrawText(TextFormat("Clients   : %d", compterClients(listeClients)),   390,205,20,WHITE);
+    DrawText(TextFormat("Commandes : %d", compterCommandes(listeCommandes)),390,235,20,WHITE);
+
+    int ea=0, ec=0, er=0;
+    ListeCommande* cmd = listeCommandes;
+    while (cmd)
+    {
+        if      (cmd->data.etat==0) ea++;
+        else if (cmd->data.etat==1) ec++;
+        else                        er++;
+        cmd = cmd->next;
+    }
+    DrawText("--- Commandes ---",                         390,275,18,LIGHTGRAY);
+    DrawText(TextFormat("En attente : %d", ea),          390,300,18,ORANGE);
+    DrawText(TextFormat("En cours   : %d", ec),          390,325,18,(Color){100,180,255,255});
+    DrawText(TextFormat("Realisees  : %d", er),          390,350,18,(Color){80,255,120,255});
+
+    int li=0, oc=0, ma=0;
+    ListeMachine* mach = listeMachines;
+    while (mach)
+    {
+        if      (mach->data.etat==0) li++;
+        else if (mach->data.etat==1) oc++;
+        else                         ma++;
+        mach = mach->next;
+    }
+    DrawText("--- Machines ---",                          390,390,18,LIGHTGRAY);
+    DrawText(TextFormat("Libres      : %d", li),         390,415,18,(Color){80,255,120,255});
+    DrawText(TextFormat("Occupees    : %d", oc),         390,440,18,(Color){100,180,255,255});
+    DrawText(TextFormat("Maintenance : %d", ma),         390,465,18,(Color){255,100,100,255});
+
+    if (bouton((Rectangle){530,530,200,45},"Retour")) *ecranActuel = ECRAN_MENU;
 }
 
+// ============================================================
+//  CLASSEMENT DES POKEMONS VENDUS
+// ============================================================
 void menuClassementGUI(Ecran *ecranActuel)
 {
-    DrawText("CLASSEMENT DES POKEMONS VENDUS", 140, 28, 26, WHITE);
-    int nbP=compterPokemons(listePokemons);
-    if(nbP==0){ DrawText("Aucun Pokemon.",290,260,22,RED);
-        if(bouton((Rectangle){340,490,200,45},"Retour")) *ecranActuel=ECRAN_MENU; return; }
-    typedef struct{int id;char nom[20];int vendu;float revenu;} StatP;
-    StatP stats[200]; int count=0;
-    ListePokemon* pok=listePokemons;
-    while(pok && count<200){
-        stats[count].id=pok->data.id; strcpy(stats[count].nom,pok->data.nom);
-        stats[count].vendu=0; stats[count].revenu=0.0f;
-        ListeCommande* cmd=listeCommandes;
-        while(cmd){ if(cmd->data.idPokemon==pok->data.id && cmd->data.etat==2){
-            stats[count].vendu+=cmd->data.quantiteProduite;
-            stats[count].revenu+=cmd->data.quantiteProduite*pok->data.prix;} cmd=cmd->next;}
-        count++; pok=pok->next;
+    DrawText("CLASSEMENT DES POKEMONS VENDUS", 320, 28, 28, WHITE);
+
+    int nbP = compterPokemons(listePokemons);
+    if (nbP == 0)
+    {
+        DrawText("Aucun Pokemon disponible.", 440, 260, 22, RED);
+        if (bouton((Rectangle){540,490,200,45},"Retour")) *ecranActuel = ECRAN_MENU;
+        return;
     }
-    for(int i=0;i<count-1;i++) for(int j=0;j<count-i-1;j++)
-        if(stats[j].vendu<stats[j+1].vendu){StatP t=stats[j];stats[j]=stats[j+1];stats[j+1]=t;}
-    int y=78;
-    DrawText("Rang | Pokemon        | Vendus | Revenu",85,y,18,WHITE);
-    DrawLine(85,y+20,820,y+20,DARKGRAY); y+=28;
-    int rang=1;
-    for(int i=0;i<count&&i<13;i++){
-        if(stats[i].vendu==0) continue;
-        Color col=(rang==1)?GOLD:(rang==2)?GRAY:(rang==3)?ORANGE:BLACK;
-        DrawText(TextFormat("%d",rang),             90,y,18,col);
-        DrawText(stats[i].nom,                     135,y,18,col);
-        DrawText(TextFormat("%d",stats[i].vendu),  390,y,18,col);
-        DrawText(TextFormat("%.2f",stats[i].revenu),490,y,18,col);
-        y+=26; rang++;
+
+    typedef struct { int id; char nom[20]; int vendu; float revenu; } StatP;
+    StatP stats[200];
+    int count = 0;
+    ListePokemon* pok = listePokemons;
+
+    while (pok && count < 200)
+    {
+        stats[count].id = pok->data.id;
+        strcpy(stats[count].nom, pok->data.nom);
+        stats[count].vendu  = 0;
+        stats[count].revenu = 0.0f;
+
+        ListeCommande* c = listeCommandes;
+        while (c)
+        {
+            if (c->data.idPokemon == pok->data.id && c->data.etat == 2)
+            {
+                stats[count].vendu  += c->data.quantiteProduite;
+                stats[count].revenu += c->data.quantiteProduite * pok->data.prix;
+            }
+            c = c->next;
+        }
+        count++;
+        pok = pok->next;
     }
-    if(stats[0].vendu==0) DrawText("Aucune vente.",300,280,20,RED);
-    if(bouton((Rectangle){340,530,200,45},"Retour")) *ecranActuel=ECRAN_MENU;
+
+    // Tri par quantite vendue (decroissant)
+    for (int i = 0; i < count-1; i++)
+    {
+        for (int j = 0; j < count-i-1; j++)
+        {
+            if (stats[j].vendu < stats[j+1].vendu)
+            {
+                StatP tmp = stats[j];
+                stats[j]   = stats[j+1];
+                stats[j+1] = tmp;
+            }
+        }
+    }
+
+    int y    = 80;
+    int rang = 1;
+    DrawText("Rang   |   Pokemon    |    Vendus    |   Revenu (pieces)",
+             150, y, 19, LIGHTGRAY);
+    DrawLine(150, y+22, 1100, y+22, LIGHTGRAY);
+    y += 30;
+
+    int hasVentes = 0;
+    for (int i = 0; i < count && i < 14; i++)
+    {
+        if (stats[i].vendu == 0)
+        {
+            continue;
+        }
+        hasVentes = 1;
+
+        Color col;
+        if (rang == 1)      col = GOLD;
+        else if (rang == 2) col = (Color){220, 220, 220, 255};
+        else if (rang == 3) col = ORANGE;
+        else                col = WHITE;
+
+        DrawText(TextFormat("%d", rang),               155, y, 19, col);
+        DrawText(stats[i].nom,                         265, y, 19, col);
+        DrawText(TextFormat("%d", stats[i].vendu),     400, y, 19, col);
+        DrawText(TextFormat("%.2f", stats[i].revenu),  500, y, 19, col);
+        y += 30;
+        rang++;
+    }
+
+    if (!hasVentes)
+    {
+        DrawText("Aucune vente enregistree pour le moment.", 350, 300, 20, RED);
+    }
+
+    // ===== CAMEMBERT RAYLIB =====
+    if (hasVentes)
+    {
+        // Dessin du camembert en bas à gauche
+        int cx = 140, cy = 520, r = 100;
+        float startAngle = 0.0f;
+        Color sectColors[] = {
+            GOLD, (Color){70,180,255,255}, (Color){255,100,100,255},
+            (Color){80,255,120,255}, ORANGE, (Color){220,130,255,255},
+            SKYBLUE, (Color){255,200,50,255}, GREEN, MAROON
+        };
+        int totalV = 0;
+        for (int i = 0; i < count; i++) totalV += stats[i].vendu;
+
+        DrawText("Repartition:", cx - 60, cy - r - 30, 16, LIGHTGRAY);
+
+        for (int i = 0; i < count && i < 10; i++)
+        {
+            if (stats[i].vendu == 0) continue;
+            float pct    = (float)stats[i].vendu / totalV;
+            float endAng = startAngle + pct * 360.0f;
+            Color col    = sectColors[i % 10];
+
+            // Dessiner le secteur avec des triangles
+            float step = 1.5f;
+            for (float a = startAngle; a < endAng; a += step)
+            {
+                float a1 = a        * 3.14159f / 180.0f;
+                float a2 = (a+step) * 3.14159f / 180.0f;
+                DrawTriangle(
+                    (Vector2){cx, cy},
+                    (Vector2){cx + cosf(a2)*r, cy + sinf(a2)*r},
+                    (Vector2){cx + cosf(a1)*r, cy + sinf(a1)*r},
+                    col
+                );
+            }
+            // Bordure secteur
+            float amid = (startAngle + endAng) / 2.0f * 3.14159f / 180.0f;
+            DrawLineEx(
+                (Vector2){cx, cy},
+                (Vector2){cx + cosf(startAngle*3.14159f/180.0f)*r,
+                          cy + sinf(startAngle*3.14159f/180.0f)*r},
+                1.5f, (Color){0,0,0,180}
+            );
+
+            // Etiquette % dans le secteur
+            float lx = cx + cosf(amid)*(r*0.62f);
+            float ly = cy + sinf(amid)*(r*0.62f);
+            DrawText(TextFormat("%.0f%%", pct*100.0f), (int)lx-12, (int)ly-8, 13,
+                     (pct > 0.12f) ? BLACK : WHITE);
+
+            startAngle = endAng;
+        }
+        // Cercle contour
+        DrawCircleLines(cx, cy, r, (Color){200,200,200,200});
+
+        // Legende couleur (droite du camembert)
+        int legX = cx + r + 20, legY = cy - r;
+        for (int i = 0; i < count && i < 10; i++)
+        {
+            if (stats[i].vendu == 0) continue;
+            DrawRectangle(legX, legY + i*18, 12, 12, sectColors[i % 10]);
+            DrawText(TextFormat("%s (%d)", stats[i].nom, stats[i].vendu),
+                     legX + 16, legY + i*18, 14, WHITE);
+        }
+    }
+
+    if (bouton((Rectangle){540,660,200,45},"Retour")) *ecranActuel = ECRAN_MENU;
 }
 
 #endif

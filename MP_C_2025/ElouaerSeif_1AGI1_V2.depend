@@ -41,10 +41,10 @@
 1770460315 source:c:\users\lenovo\downloads\files\production.c
 	"headers.h"
 
-1772201315 source:c:\users\chakra\desktop\mp_c_2025\client.c
+1772215866 source:c:\users\chakra\desktop\mp_c_2025\client.c
 	"headers.h"
 
-1772193207 c:\users\chakra\desktop\mp_c_2025\headers.h
+1772215106 c:\users\chakra\desktop\mp_c_2025\headers.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -58,6 +58,7 @@
 	"client.h"
 	"commande.h"
 	"menu.h"
+	"export.h"
 
 1772144443 c:\users\chakra\desktop\mp_c_2025\pokemon.h
 	"gui.h"
@@ -68,31 +69,32 @@
 
 1772192073 c:\users\chakra\desktop\mp_c_2025\commande.h
 
-1771019698 c:\users\chakra\desktop\mp_c_2025\menu.h
+1772215106 c:\users\chakra\desktop\mp_c_2025\menu.h
 
-1772201315 source:c:\users\chakra\desktop\mp_c_2025\commande.c
+1772215106 source:c:\users\chakra\desktop\mp_c_2025\commande.c
 	"headers.h"
 
-1772201574 source:c:\users\chakra\desktop\mp_c_2025\machine.c
+1772215969 source:c:\users\chakra\desktop\mp_c_2025\machine.c
 	"headers.h"
 
 1772145614 source:c:\users\chakra\desktop\mp_c_2025\main.c
 	"headers.h"
 	"gui.h"
 
-1772145159 source:c:\users\chakra\desktop\mp_c_2025\menu.c
+1772215106 source:c:\users\chakra\desktop\mp_c_2025\menu.c
 	"headers.h"
 
-1772201314 source:c:\users\chakra\desktop\mp_c_2025\pokemon.c
+1772215866 source:c:\users\chakra\desktop\mp_c_2025\pokemon.c
 	"headers.h"
 
-1772201942 source:c:\users\chakra\desktop\mp_c_2025\production.c
+1772216024 source:c:\users\chakra\desktop\mp_c_2025\production.c
+	"headers.h"
+	<math.h>
+
+1772215106 source:c:\users\chakra\desktop\mp_c_2025\gui.c
 	"headers.h"
 
-1772201574 source:c:\users\chakra\desktop\mp_c_2025\gui.c
-	"headers.h"
-
-1772201314 c:\users\chakra\desktop\mp_c_2025\gui.h
+1772215106 c:\users\chakra\desktop\mp_c_2025\gui.h
 	"raylib.h"
 
 1772037288 c:\users\chakra\desktop\mp_c_2025\gui_elements.h
@@ -108,4 +110,10 @@
 
 1771965781 c:\users\chakra\desktop\mp_c_2025\gui_context.h
 	"gui_elements.h"
+
+1772215106 c:\users\chakra\desktop\mp_c_2025\export.h
+
+1772215866 source:c:\users\chakra\desktop\mp_c_2025\export.c
+	"headers.h"
+	<time.h>
 

@@ -134,6 +134,16 @@ void supprimerPokemon(ListePokemon** liste) {
         return;
     }
 
+    printf("\n>>> Confirmation <<<\n");
+    printf("Supprimer le Pokemon '%s' (ID:%d, Prix:%.2f) ? (o/n): ",
+           current->data.nom, current->data.id, current->data.prix);
+    char rep[4];
+    scanf("%s", rep);
+    if (rep[0] != 'o' && rep[0] != 'O') {
+        printf("Suppression annulee.\n");
+        return;
+    }
+
     if (prev == NULL) {
         *liste = current->next;
     } else {
@@ -279,9 +289,9 @@ void pokemonAjoutGUI(Ecran *ecran)
     if (!pokAjoutInit)
     {
         UI_Clear();
-        tbPokNom  = UI_CreateTextBox((Rectangle){320, 132, 260, 38}, 20);
-        tbPokPrix = UI_CreateTextBox((Rectangle){320, 192, 260, 38}, 10);
-        tbPokType = UI_CreateTextBox((Rectangle){320, 252, 260, 38}, 20);
+        tbPokNom  = UI_CreateTextBox((Rectangle){320, 110, 260, 38}, 20);
+        tbPokPrix = UI_CreateTextBox((Rectangle){320, 170, 260, 38}, 10);
+        tbPokType = UI_CreateTextBox((Rectangle){320, 230, 260, 38}, 20);
         pokAjoutInit = true;
     }
     UI_UpdateAndDraw();
@@ -302,10 +312,10 @@ void pokemonAjoutGUI(Ecran *ecran)
                 n->data.prix = atof(tbPokPrix->text);
                 strcpy(n->data.type, tbPokType->text);
                 n->next = listePokemons; listePokemons = n;
-                printf("Pokemon ajoute : %s (ID:%d)\n", n->data.nom, n->data.id);
+                UI_Notif(TextFormat("Pokemon ajoute : %s (ID:%d)", n->data.nom, n->data.id), NOTIF_SUCCES);
                 tbPokNom->text[0]='\0'; tbPokPrix->text[0]='\0'; tbPokType->text[0]='\0';
             }
-        } else printf("Remplissez tous les champs.\n");
+        } else UI_Notif("Remplissez tous les champs.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){320, 375, 260, 45}, "Retour"))
     { UI_Clear(); pokAjoutInit=false; *ecran=ECRAN_POKEMON_MENU; }
@@ -334,7 +344,6 @@ void pokemonModifGUI(Ecran *ecran)
     DrawText("Nom :",  10, 132, 17, WHITE);
     DrawText("Prix :", 10, 192, 17, WHITE);
     DrawText("Type :", 10, 252, 17, WHITE);
-    DrawText("vide=inchange", 10, 312, 13, (Color){180,180,180,255});
     DrawText("Pokemons :", 190, 52, 17, WHITE);
 
     if (bouton((Rectangle){10, 335, 170, 40}, "Valider"))
@@ -346,11 +355,11 @@ void pokemonModifGUI(Ecran *ecran)
                 if (strlen(tbPokNom2->text)  > 0) strcpy(node->data.nom,  tbPokNom2->text);
                 if (strlen(tbPokPrix2->text) > 0) node->data.prix = atof(tbPokPrix2->text);
                 if (strlen(tbPokType2->text) > 0) strcpy(node->data.type, tbPokType2->text);
-                printf("Pokemon %d modifie.\n", id);
+                UI_Notif(TextFormat("Pokemon %d modifie avec succes.", id), NOTIF_SUCCES);
                 tbPokID->text[0]='\0'; tbPokNom2->text[0]='\0';
                 tbPokPrix2->text[0]='\0'; tbPokType2->text[0]='\0';
                 RefreshPokemonList();
-            } else printf("Pokemon introuvable.\n");
+            } else UI_Notif("Pokemon introuvable. Verifiez l'ID.", NOTIF_ERREUR);
         }
     }
     if (bouton((Rectangle){10, 390, 170, 40}, "Retour"))
@@ -375,20 +384,35 @@ void pokemonSuppGUI(Ecran *ecran)
     DrawText("ID a supprimer :", 10, 130, 17, WHITE);
     DrawText("Pokemons :", 190, 52, 17, WHITE);
 
+    // Gestion popup confirmation
+    static int pokSuppPendingID = 0;
+    int popupRes = UI_PopupDraw();
+    if (popupRes == 1 && pokSuppPendingID > 0)
+    {
+        ListePokemon* cur = listePokemons; ListePokemon* prev = NULL;
+        while (cur && cur->data.id != pokSuppPendingID) { prev=cur; cur=cur->next; }
+        if (cur) {
+            if (prev) prev->next=cur->next; else listePokemons=cur->next;
+            free(cur);
+            UI_Notif(TextFormat("Pokemon %d supprime.", pokSuppPendingID), NOTIF_SUCCES);
+            tbPokIDSupp->text[0]='\0';
+            RefreshPokemonList();
+        }
+        pokSuppPendingID = 0;
+    }
+    else if (popupRes == -1) { pokSuppPendingID = 0; UI_Notif("Suppression annulee.", NOTIF_INFO); }
+
     if (bouton((Rectangle){10, 205, 170, 40}, "Supprimer"))
     {
         int id = atoi(tbPokIDSupp->text);
         if (id > 0) {
-            ListePokemon* cur = listePokemons; ListePokemon* prev = NULL;
-            while (cur && cur->data.id != id) { prev=cur; cur=cur->next; }
+            ListePokemon* cur = listePokemons;
+            while (cur && cur->data.id != id) cur = cur->next;
             if (cur) {
-                if (prev) prev->next=cur->next; else listePokemons=cur->next;
-                free(cur);
-                printf("Pokemon %d supprime.\n", id);
-                tbPokIDSupp->text[0]='\0';
-                RefreshPokemonList();
-            } else printf("Pokemon introuvable.\n");
-        }
+                pokSuppPendingID = id;
+                UI_PopupShow(TextFormat("Supprimer Pokemon '%s' (ID:%d) ?", cur->data.nom, id));
+            } else UI_Notif("Pokemon introuvable. Verifiez l'ID.", NOTIF_ERREUR);
+        } else UI_Notif("Entrez un ID valide.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){10, 260, 170, 40}, "Retour"))
     { UI_Clear(); pokSuppInit=false; *ecran=ECRAN_POKEMON_MENU; }

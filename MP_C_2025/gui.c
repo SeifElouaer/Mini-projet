@@ -2,16 +2,163 @@
 #ifdef GUI
 
 // ============================================================
+//  SYSTEME DE NOTIFICATIONS
+// ============================================================
+#define NOTIF_DUREE   3.5f   // secondes d'affichage
+#define NOTIF_MAX_LEN 200
+
+static char  notifMessage[NOTIF_MAX_LEN] = "";
+static float notifTimer   = 0.0f;
+static TypeNotif notifType = NOTIF_INFO;
+
+void UI_Notif(const char* message, TypeNotif type)
+{
+    strncpy(notifMessage, message, NOTIF_MAX_LEN - 1);
+    notifMessage[NOTIF_MAX_LEN - 1] = '\0';
+    notifTimer = NOTIF_DUREE;
+    notifType  = type;
+}
+
+void UI_NotifDraw(void)
+{
+    if (notifTimer <= 0.0f) return;
+
+    notifTimer -= GetFrameTime();
+    if (notifTimer <= 0.0f) { notifMessage[0] = '\0'; return; }
+
+    // Couleur selon type
+    Color fondNotif, bordNotif;
+    switch (notifType) {
+        case NOTIF_SUCCES:
+            fondNotif = (Color){ 20, 160,  60, 230};
+            bordNotif = (Color){ 50, 255,  80, 255};
+            break;
+        case NOTIF_ERREUR:
+            fondNotif = (Color){180,  20,  20, 230};
+            bordNotif = (Color){255,  60,  60, 255};
+            break;
+        default: // NOTIF_INFO
+            fondNotif = (Color){ 20,  80, 160, 230};
+            bordNotif = (Color){ 60, 160, 255, 255};
+            break;
+    }
+
+    // Barre de progression (temps restant)
+    float ratio = notifTimer / NOTIF_DUREE;
+
+    int tw  = MeasureText(notifMessage, 20);
+    int bw  = (tw + 60 < 500) ? 500 : tw + 60;
+    int bx  = 640 - bw/2;
+    int by  = 640;          // bas de l'ecran
+    int bh  = 55;
+
+    // Ombre
+    DrawRectangleRounded((Rectangle){bx+3, by+3, bw, bh}, 0.3f, 8, (Color){0,0,0,150});
+    // Corps
+    DrawRectangleRounded((Rectangle){bx, by, bw, bh}, 0.3f, 8, fondNotif);
+    // Bordure
+    DrawRectangleRoundedLines((Rectangle){bx, by, bw, bh}, 0.3f, 8, bordNotif);
+    // Texte centré
+    DrawText(notifMessage, 640 - tw/2, by + 17, 20, WHITE);
+    // Barre de progression en bas
+    DrawRectangleRounded((Rectangle){bx+4, by+bh-8, (int)((bw-8)*ratio), 5},
+                         0.5f, 4, bordNotif);
+}
+
+// ============================================================
+//  POPUP DE CONFIRMATION
+// ============================================================
+#define POPUP_MSG_LEN 256
+
+static char  popupMessage[POPUP_MSG_LEN] = "";
+static bool  popupVisible = false;
+
+void UI_PopupShow(const char* message)
+{
+    strncpy(popupMessage, message, POPUP_MSG_LEN - 1);
+    popupMessage[POPUP_MSG_LEN - 1] = '\0';
+    popupVisible = true;
+}
+
+// Retourne: 1=Oui, -1=Non, 0=en attente
+int UI_PopupDraw(void)
+{
+    if (!popupVisible) return 0;
+
+    // Fond semi-transparent
+    DrawRectangle(0, 0, 1280, 720, (Color){0, 0, 0, 170});
+
+    // Boite centrale
+    int bw = 640, bh = 200;
+    int bx = (1280 - bw) / 2;
+    int by = (720  - bh) / 2;
+
+    // Ombre
+    DrawRectangleRounded((Rectangle){bx+4, by+4, bw, bh}, 0.15f, 8, (Color){0,0,0,160});
+    // Corps
+    DrawRectangleRounded((Rectangle){bx, by, bw, bh}, 0.15f, 8, (Color){30, 30, 40, 245});
+    // Bordure orange (avertissement)
+    DrawRectangleRoundedLines((Rectangle){bx, by, bw, bh}, 0.15f, 8, (Color){255,140,0,255});
+
+    // Icone avertissement
+    DrawText("⚠", bx + 20, by + 15, 32, (Color){255,140,0,255});
+
+    // Titre
+    DrawText("CONFIRMATION REQUISE", bx + 62, by + 20, 22, (Color){255,200,80,255});
+
+    // Message (wrap simple)
+    int tw = MeasureText(popupMessage, 18);
+    DrawText(popupMessage, bx + bw/2 - tw/2, by + 70, 18, WHITE);
+
+    // Bouton OUI
+    Rectangle btnOui = {bx + 80, by + 130, 180, 45};
+    Vector2 souris = GetMousePosition();
+    bool hOui = CheckCollisionPointRec(souris, btnOui);
+    DrawRectangleRounded(btnOui, 0.3f, 8,
+        hOui ? (Color){50,200,80,255} : (Color){30,120,50,220});
+    DrawRectangleRoundedLines(btnOui, 0.3f, 8, (Color){80,255,100,255});
+    int twOui = MeasureText("Oui, supprimer", 20);
+    DrawText("Oui, supprimer",
+             (int)(btnOui.x + btnOui.width/2 - twOui/2),
+             (int)(btnOui.y + btnOui.height/2 - 10), 20,
+             hOui ? BLACK : WHITE);
+
+    // Bouton NON
+    Rectangle btnNon = {bx + bw - 260, by + 130, 180, 45};
+    bool hNon = CheckCollisionPointRec(souris, btnNon);
+    DrawRectangleRounded(btnNon, 0.3f, 8,
+        hNon ? (Color){200,50,50,255} : (Color){120,30,30,220});
+    DrawRectangleRoundedLines(btnNon, 0.3f, 8, (Color){255,80,80,255});
+    int twNon = MeasureText("Annuler", 20);
+    DrawText("Annuler",
+             (int)(btnNon.x + btnNon.width/2 - twNon/2),
+             (int)(btnNon.y + btnNon.height/2 - 10), 20,
+             hNon ? BLACK : WHITE);
+
+    if (hOui && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        popupVisible = false;
+        return 1;
+    }
+    if (hNon && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        popupVisible = false;
+        return -1;
+    }
+    return 0;
+}
+
+// ============================================================
 //  COULEURS PAR SECTION
 // ============================================================
-#define COL_MENU_PANEL     (Color){  0,   0,   0, 160}
+#define COL_MENU_PANEL     (Color){  0,   0,   0, 175}
 #define COL_POKEMON_PANEL  (Color){ 34, 139,  34, 170}
 #define COL_MACHINE_PANEL  (Color){ 30,  30,  60, 170}
 #define COL_CLIENT_PANEL   (Color){ 70,   0, 130, 170}
 #define COL_COMMANDE_PANEL (Color){ 10,  50, 120, 170}
 #define COL_PROD_PANEL     (Color){120,  20,  20, 170}
-#define COL_STATS_PANEL    (Color){ 20,  20,  20, 180}
-#define COL_CLASS_PANEL    (Color){ 60,   0,  80, 170}
+#define COL_STATS_PANEL    (Color){  0,  20,  10, 195}
+#define COL_CLASS_PANEL    (Color){ 10,   0,  30, 200}
 
 #define ACC_MENU       (Color){255, 203,   5, 255}
 #define ACC_POKEMON    (Color){255, 140,   0, 255}
@@ -31,7 +178,6 @@ static Texture2D texMachine;
 static Texture2D texClient;
 static Texture2D texCommande;
 static Texture2D texClassement;
-static bool texturesLoaded = false;
 
 Color accentCourant = {255, 203, 5, 255};
 
@@ -120,7 +266,6 @@ void lancerInterface()
     texClient     = LoadTexture("bg_client.png");
     texCommande   = LoadTexture("bg_commande.png");
     texClassement = LoadTexture("bg_classement.png");
-    texturesLoaded = true;
 
     Rectangle boutonFermer = {490, 400, 300, 55};
 
@@ -142,8 +287,8 @@ void lancerInterface()
             DrawText(titre,   640-tw/2, 30, 48, accentCourant);
 
             // Panneau boutons
-            DrawRectangleRounded((Rectangle){433, 90, 414, 530}, 0.1f, 8, (Color){0,0,0,130});
-            DrawRectangleRoundedLines((Rectangle){433, 90, 414, 530}, 0.1f, 8,
+            DrawRectangleRounded((Rectangle){433, 90, 414, 595}, 0.1f, 8, (Color){0,0,0,130});
+            DrawRectangleRoundedLines((Rectangle){433, 90, 414, 595}, 0.1f, 8,
                 (Color){accentCourant.r, accentCourant.g, accentCourant.b, 150});
 
             int bx=448, by=110, bw=384, bh=52, gap=61;
@@ -154,7 +299,8 @@ void lancerInterface()
             if (bouton((Rectangle){bx,by+gap*4,bw,bh},"Production"))          ecranActuel=ECRAN_PROD_MENU;
             if (bouton((Rectangle){bx,by+gap*5,bw,bh},"Etat Usine"))          ecranActuel=ECRAN_ETAT;
             if (bouton((Rectangle){bx,by+gap*6,bw,bh},"Classement Pokemons")) ecranActuel=ECRAN_CLASSEMENT;
-            if (bouton((Rectangle){bx,by+gap*7,bw,bh},"Quitter")) {
+            if (bouton((Rectangle){bx,by+gap*7,bw,bh},"Export CSV"))          ecranActuel=ECRAN_EXPORT;
+            if (bouton((Rectangle){bx,by+gap*8,bw,bh},"Quitter")) {
                 sauvegarderDonneesGUI();
                 libererToutesLesListesGUI();
                 ecranActuel=ECRAN_FIN;
@@ -213,6 +359,8 @@ void lancerInterface()
         { accentCourant=ACC_COMMANDE; drawBackground(texCommande); drawPanel(COL_COMMANDE_PANEL); commandeModifGUI(&ecranActuel); }
         else if (ecranActuel==ECRAN_COMMANDE_SUPP)
         { accentCourant=ACC_COMMANDE; drawBackground(texCommande); drawPanel(COL_COMMANDE_PANEL); commandeSuppGUI(&ecranActuel); }
+        else if (ecranActuel==ECRAN_COMMANDE_AFF)
+        { accentCourant=ACC_COMMANDE; drawBackground(texCommande); drawPanel(COL_COMMANDE_PANEL); commandeAffGUI(&ecranActuel); }
 
         // ====================================================
         //  PRODUCTION  (rouge brique / jaune chaud)
@@ -225,6 +373,12 @@ void lancerInterface()
         { accentCourant=ACC_PROD; drawBackground(texMachine); drawPanel(COL_PROD_PANEL); prodEntretenirGUI(&ecranActuel); }
         else if (ecranActuel==ECRAN_PROD_ETAT)
         { accentCourant=ACC_PROD; drawBackground(texMachine); drawPanel(COL_PROD_PANEL); prodEtatGUI(&ecranActuel); }
+
+        // ====================================================
+        //  EXPORT CSV
+        // ====================================================
+        else if (ecranActuel==ECRAN_EXPORT)
+        { accentCourant=(Color){80,255,120,255}; drawBackground(texMachine); drawPanel((Color){0,40,10,190}); menuExportGUI(&ecranActuel); }
 
         // ====================================================
         //  ETAT USINE  (anthracite / vert)
@@ -264,14 +418,14 @@ void lancerInterface()
         }
 
         UI_Draw();
+        UI_NotifDraw();   // notifications par-dessus tout
+        UI_PopupDraw();   // popup confirmation (par-dessus tout)
         EndDrawing();
     }
 
-    if (texturesLoaded) {
-        UnloadTexture(texMenu); UnloadTexture(texPokemon);
-        UnloadTexture(texMachine); UnloadTexture(texClient);
-        UnloadTexture(texCommande); UnloadTexture(texClassement);
-    }
+    UnloadTexture(texMenu); UnloadTexture(texPokemon);
+    UnloadTexture(texMachine); UnloadTexture(texClient);
+    UnloadTexture(texCommande); UnloadTexture(texClassement);
 }
 
 #endif

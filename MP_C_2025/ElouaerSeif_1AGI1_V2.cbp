@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-DGUI" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -39,6 +40,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="commande.h" />
+		<Unit filename="export.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="export.h" />
 		<Unit filename="gui.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -165,6 +165,17 @@ void supprimerCommande(ListeCommande** liste) {
         return;
     }
 
+    printf("\n>>> Confirmation <<<\n");
+    printf("Supprimer la commande ID:%d (Pokemon:%d, Quantite:%d, Etat:%s) ? (o/n): ",
+           current->data.id, current->data.idPokemon, current->data.quantite,
+           (current->data.etat==0)?"En attente":(current->data.etat==1)?"En cours":"Realisee");
+    char rep[4];
+    scanf("%s", rep);
+    if (rep[0] != 'o' && rep[0] != 'O') {
+        printf("Suppression annulee.\n");
+        return;
+    }
+
     if (prev == NULL) {
         *liste = current->next;
     } else {
@@ -278,6 +289,11 @@ static ScrollableList* cmdListSupp = NULL;
 static bool cmdSuppInit = false;
 static char cmdLabSupp[MAX_ITEMS][200];
 
+// Afficher
+static ScrollableList* cmdListAff = NULL;
+static char cmdLabAff[MAX_ITEMS][200];
+static bool cmdAffInit = false;
+
 static void fillCmdList(ScrollableList* list, char labels[][200])
 {
     if (!list) return;
@@ -327,7 +343,8 @@ void menuCommandeGUI(Ecran *ecranActuel)
     if (bouton((Rectangle){300, 140, 280, 50}, "Ajouter Commande"))   *ecranActuel = ECRAN_COMMANDE_AJOUT;
     if (bouton((Rectangle){300, 210, 280, 50}, "Modifier Commande"))  *ecranActuel = ECRAN_COMMANDE_MODIF;
     if (bouton((Rectangle){300, 280, 280, 50}, "Supprimer Commande")) *ecranActuel = ECRAN_COMMANDE_SUPP;
-    if (bouton((Rectangle){300, 430, 280, 50}, "Retour"))             *ecranActuel = ECRAN_MENU;
+    if (bouton((Rectangle){300, 350, 280, 50}, "Afficher Commandes")) *ecranActuel = ECRAN_COMMANDE_AFF;
+    if (bouton((Rectangle){300, 450, 280, 50}, "Retour"))             *ecranActuel = ECRAN_MENU;
 }
 
 // ===== AJOUTER =====
@@ -376,12 +393,12 @@ void commandeAjoutGUI(Ecran *ecranActuel)
                 n->data.dateHeure[strlen(n->data.dateHeure)-1] = '\0';
                 n->next = listeCommandes; listeCommandes = n;
                 tbCliId->text[0]='\0'; tbPokId->text[0]='\0'; tbQte->text[0]='\0';
-                printf("Commande ajoutee (ID:%d).\n", n->data.id);
+                UI_Notif(TextFormat("Commande ajoutee avec succes (ID:%d).", n->data.id), NOTIF_SUCCES);
             }
         } else {
-            if (idCli<=0 || !rechercherClient(listeClients,idCli))   printf("Client invalide.\n");
-            else if (idPok<=0 || !rechercherPokemon(listePokemons,idPok)) printf("Pokemon invalide.\n");
-            else printf("Quantite invalide.\n");
+            if (idCli<=0 || !rechercherClient(listeClients,idCli))   UI_Notif("Client invalide. Verifiez l'ID client.", NOTIF_ERREUR);
+            else if (idPok<=0 || !rechercherPokemon(listePokemons,idPok)) UI_Notif("Pokemon invalide. Verifiez l'ID pokemon.", NOTIF_ERREUR);
+            else UI_Notif("Quantite invalide (doit etre > 0).", NOTIF_ERREUR);
         }
     }
     if (bouton((Rectangle){10, 305, 165, 40}, "Retour"))
@@ -416,10 +433,10 @@ void commandeModifGUI(Ecran *ecranActuel)
             ListeCommande* node = rechercherCommande(listeCommandes, id);
             if (node) {
                 node->data.quantite = qte;
-                printf("Commande %d modifiee.\n", id);
+                UI_Notif(TextFormat("Commande %d modifiee avec succes.", id), NOTIF_SUCCES);
                 tbModId->text[0]='\0'; tbModQte->text[0]='\0';
                 fillCmdList(cmdListMod, cmdLabMod);
-            } else printf("Commande introuvable.\n");
+            } else UI_Notif("Commande introuvable. Verifiez l'ID.", NOTIF_ERREUR);
         }
     }
     if (bouton((Rectangle){10, 253, 170, 40}, "Retour"))
@@ -443,23 +460,59 @@ void commandeSuppGUI(Ecran *ecranActuel)
     DrawText("ID a supprimer :", 10, 130, 17, WHITE);
     DrawText("Commandes :", 190, 52, 17, WHITE);
 
+    // Gestion popup confirmation
+    static int cmdSuppPendingID = 0;
+    int popupRes = UI_PopupDraw();
+    if (popupRes == 1 && cmdSuppPendingID > 0)
+    {
+        ListeCommande* cur=listeCommandes; ListeCommande* prev=NULL;
+        while (cur && cur->data.id!=cmdSuppPendingID) { prev=cur; cur=cur->next; }
+        if (cur) {
+            if (prev) prev->next=cur->next; else listeCommandes=cur->next;
+            free(cur);
+            UI_Notif(TextFormat("Commande %d supprimee.", cmdSuppPendingID), NOTIF_SUCCES);
+            tbSuppId->text[0]='\0';
+            fillCmdList(cmdListSupp, cmdLabSupp);
+        }
+        cmdSuppPendingID = 0;
+    }
+    else if (popupRes == -1) { cmdSuppPendingID = 0; UI_Notif("Suppression annulee.", NOTIF_INFO); }
+
     if (bouton((Rectangle){10, 205, 170, 40}, "Supprimer"))
     {
         int id = atoi(tbSuppId->text);
         if (id > 0) {
-            ListeCommande* cur=listeCommandes; ListeCommande* prev=NULL;
-            while (cur && cur->data.id!=id) { prev=cur; cur=cur->next; }
+            ListeCommande* cur = listeCommandes;
+            while (cur && cur->data.id != id) cur = cur->next;
             if (cur) {
-                if (prev) prev->next=cur->next; else listeCommandes=cur->next;
-                free(cur);
-                printf("Commande %d supprimee.\n", id);
-                tbSuppId->text[0]='\0';
-                fillCmdList(cmdListSupp, cmdLabSupp);
-            } else printf("Commande introuvable.\n");
-        }
+                cmdSuppPendingID = id;
+                const char* et = (cur->data.etat==0)?"En attente"
+                               : (cur->data.etat==1)?"En cours":"Realisee";
+                UI_PopupShow(TextFormat("Supprimer commande ID:%d (Pok:%d, Qte:%d, %s) ?",
+                             id, cur->data.idPokemon, cur->data.quantite, et));
+            } else UI_Notif("Commande introuvable. Verifiez l'ID.", NOTIF_ERREUR);
+        } else UI_Notif("Entrez un ID valide.", NOTIF_ERREUR);
     }
     if (bouton((Rectangle){10, 260, 170, 40}, "Retour"))
     { UI_Clear(); cmdSuppInit=false; *ecranActuel=ECRAN_COMMANDE_MENU; }
+}
+
+// ===== AFFICHER COMMANDES =====
+void commandeAffGUI(Ecran *ecranActuel)
+{
+    if (!cmdAffInit) {
+        UI_Clear();
+        cmdListAff = UI_CreateList((Rectangle){60, 90, 1140, 540});
+        fillCmdList(cmdListAff, cmdLabAff);
+        cmdAffInit = true;
+    }
+    UI_UpdateAndDraw();
+
+    DrawText("LISTE DES COMMANDES", 480, 40, 30, WHITE);
+
+    if (bouton((Rectangle){530, 650, 230, 45}, "Retour")) {
+        UI_Clear(); cmdAffInit = false; *ecranActuel = ECRAN_COMMANDE_MENU;
+    }
 }
 
 #endif

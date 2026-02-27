@@ -20,4 +20,7 @@ void menuEtatUsine();
 void afficherStatistiques(ListePokemon* listePokemons, ListeMachine* listeMachines,
                          ListeClient* listeClients, ListeCommande* listeCommandes);
 
+
+void menuExportGUI(Ecran *ecranActuel);
+
 #endif // MENU_H_INCLUDED

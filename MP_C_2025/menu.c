@@ -20,6 +20,8 @@ void menuPrincipal() {
         printf("| 5. Production et maintenance       |\n");
         printf("| 6. Afficher l'etat de l'usine      |\n");
         printf("| 7. Classement des Pokemons vendus  |\n");
+        printf("| 8. Export CSV                       |\n");
+        printf("| 9. Camembert des ventes             |\n");
         printf("| 0. Quitter et sauvegarder          |\n");
         printf("========================================\n");
         printf("Votre choix: ");
@@ -46,6 +48,14 @@ void menuPrincipal() {
                 break;
             case 7:
                 afficherClassementPokemons(listeCommandes, listePokemons);
+                break;
+            case 8:
+                printf("\n>>> Export CSV <<<\n");
+                exporterCSV(listePokemons, listeMachines, listeClients, listeCommandes, caisse);
+                break;
+            case 9:
+                printf("\n>>> Camembert des ventes <<<\n");
+                afficherCamembertConsole(listeCommandes, listePokemons);
                 break;
             case 0:
                 printf("\nSauvegarde et fermeture...\n");
