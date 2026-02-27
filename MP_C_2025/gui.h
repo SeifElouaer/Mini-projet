@@ -1,0 +1,46 @@
+#ifndef GUI_H_INCLUDED
+#define GUI_H_INCLUDED
+#include "raylib.h"
+typedef enum {
+    ECRAN_MENU,
+    ECRAN_POKEMON,
+    ECRAN_CLIENT,
+    ECRAN_COMMANDE,
+    ECRAN_PRODUCTION,
+    ECRAN_ETAT,
+    ECRAN_FIN,
+    ECRAN_MACHINE_MENU,
+    ECRAN_MACHINE_AJOUT,
+    ECRAN_MACHINE_MODIF,
+    ECRAN_MACHINE_SUPP,
+    ECRAN_MACHINE_AFF,
+    ECRAN_POKEMON_MENU,
+    ECRAN_POKEMON_AJOUT,
+    ECRAN_POKEMON_MODIF,
+    ECRAN_POKEMON_SUPP,
+    ECRAN_POKEMON_AFF,
+    ECRAN_CLASSEMENT,
+    ECRAN_COMMANDE_MENU,
+    ECRAN_COMMANDE_AJOUT,
+    ECRAN_COMMANDE_MODIF,
+    ECRAN_COMMANDE_SUPP,
+    ECRAN_PROD_MENU,
+    ECRAN_PROD_REALISER,
+    ECRAN_PROD_ENTRETENIR,
+    ECRAN_PROD_ETAT,
+    ECRAN_CLIENT_MENU,
+    ECRAN_CLIENT_AJOUT,
+    ECRAN_CLIENT_MODIF,
+    ECRAN_CLIENT_SUPP,
+    ECRAN_CLIENT_AFF
+} Ecran;
+
+
+// Couleur d'accent courante (change selon la section active)
+extern Color accentCourant;
+
+bool bouton(Rectangle rect, const char* texte);
+
+void lancerInterface();
+
+#endif // GUI_H_INCLUDED
